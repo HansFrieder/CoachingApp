@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="fw-bold display-3">Login</div>
+    
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+        </div>
+
+        <div class="mb-3">
+            {{ form.password.label_tag }}
+            {{ form.password }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Einloggen</button>
+
+        {% if form.errors %}
+        <div class="alert alert-danger mt-3">
+            Benutzername oder Passwort falsch.
+        </div>
+        {% endif %}
+    </form>
+{% endblock %}
