@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-sm p-5">
+    {% for site in navigation_sites %}
+    <div class="row">
+        <button class="btn btn-light custom-nav-btn p-10" onclick="location.href='{% url site.url %}'">{{ site.name }}</button>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

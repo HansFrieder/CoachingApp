@@ -1,6 +1,7 @@
 {% load django_bootstrap5 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
+{% load static %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -8,18 +9,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coaching App</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
     <header>
-        <div class="navbar-brand">
-            <a class="navbar-brand" href="{% url 'mainpage' %}">Coaching App</a>
-        </div>
         <!-- Navigation -->
+        {% if not hide_navbar %}
+        <nav class="navbar bg-dark container-fluid p-2 align-items-center">
+            <a class="navbar-brand text-light" href="{% url 'mainpage' %}">Coaching App</a>
+            {% if user.is_authenticated %}
+            <form class="d-flex align-items-center m-0" method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <span class="navbar-text text-light">{{ user.username }}</span>
+                <button type="submit" class="navbar-toggler text-light">Logout</button>
+            </form>
+            {% endif %}
+        </nav>
+        {% endif %}
     </header>
     <main>
         {% block content %}
         {% endblock %}
+        <!-- Floating Button -->
+        {% if user.is_authenticated and not hide_navbar %}
+        <a class="btn btn-light custom-nav-btn position-fixed bottom-0 end-0 m-4 rounded-circle shadow p-0" href="{% url 'navigation_popup' %}">
+            <img class="p-0 m-0" src="{% static 'images/basketball-icon.png' %}" alt="Menu" width="80" height="80">
+        </a>
+        {% endif %}
     </main>
     <footer>
         <p>&copy; 2025 Coaching App. All rights reserved.</p>
