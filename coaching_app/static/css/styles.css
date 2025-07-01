@@ -3,3 +3,8 @@
     border-color: #000000;
     color: #ffffff;
 }
+
+.select2-container--default .select2-results__option--highlighted[aria-selected="true"] {
+    background-color: lightgray !important;
+    color: black !important;
+} /* Soll benutzt werden, um bei Skill-Optionen den Hover grau zu färben (Funktioniert nicht) */
