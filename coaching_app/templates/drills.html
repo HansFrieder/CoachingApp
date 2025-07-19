@@ -14,5 +14,38 @@
             </div>
             <div class="col-1 col-md-3"></div>
         </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="accordion" id="accordionDrills">
+                {% for drill in drills %}
+                    <div class="accordion-header d-flex mt-2 mb-2">
+                        <div class="d-flex">
+                            <button class="btn btn-outline-secondary btn-sm flex-fill m-1" type="button" data-bs-toggle="modal" data-bs-target="#editDrillModal{{ forloop.counter }}">
+                                &#9998;
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm flex-fill m-1" type="button" data-bs-toggle="modal" data-bs-target="#deleteDrillModal{{ forloop.counter }}">
+                                &#10006;
+                            </button>
+                        </div>
+                        <button class="accordion-button collapsed flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                        {{ drill.name }}
+                        </button>
+                        
+                    </div>
+                    <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#accordionDrills">
+                        <div class="accordion-body">
+                            <strong>Beschreibung: </strong> 
+                            {{ drill.description }}
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+                
+        </div>
     </div>
+    <!-- Drill Liste -->
+    <!-- Drills anzeigen und bearbeiten können -->
+
 {% endblock %}

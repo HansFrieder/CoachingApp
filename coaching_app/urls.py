@@ -20,7 +20,9 @@ from django.urls import path
 from django.utils.module_loading import import_string
 
 from . import views
-from .config import *
+from .config import Config
+
+config = Config()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,5 +30,6 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'), # Login
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'), # Logout
     path('navigation/', views.navigation_popup, name='navigation_popup'),  # Navigation Popup
-    *[path(f"{site["url"]}/", import_string(site["view"]), name=site["url"]) for site in config_dict['navigation_sites']]
+    *[path(f"{site["url"]}/", import_string(site["view"]), name=site["url"]) for site in config.sites['navigation_sites']], # Dynamic URL patterns for navigation sites
+    path('drills/create/', views.create_drill, name='create_drill'),  # Create Drill
 ]
