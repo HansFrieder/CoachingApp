@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from .config import Config
 from .models import *
 from .functions import create_drill, update_drill
+import json
 
 config = Config()
 
@@ -56,8 +57,13 @@ def drills(request):
     # Alle Drills abrufen
     drills = Drill.objects.all()
 
+    # Stat Daten als json übergeben
+    stats = {drill.id: drill.stats["level2_distr"] for drill in drills}
+    stats_json = json.dumps(stats)
+
     return render(request, 'drills.html', context={
-        'drills': drills
+        'drills': drills,
+        'stats': stats_json
     })
 
 @login_required(login_url='login') 

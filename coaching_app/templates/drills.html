@@ -27,12 +27,26 @@
         <div class="row">
             
             <!-- Drill-Liste -->
-            <div class="col">
+            <div class="col p-0">
+                
+                
+                {% for drill in drills %}
+                    <div class="row border border-dark rounded mt-2 p-2" style="background-color: {{ drill.stats.color }};">
+                        <p class="col-6 m-0 fs-6 text-truncate" >{{ drill.name }}</p>
+                        <div class="col-6">
+                            <canvas data-drill-id="{{ drill.id }}" class="chart-canvas" width="40" height="40"></canvas>
+                        </div>
+                    </div>
+                    
+                {% endfor %}
+                
+
+                <!--
                 <div class="accordion" id="accordionDrills">
                 {% for drill in drills %}
                     <div class="accordion-header d-flex mt-2 mb-2">
 
-                        <!-- Drill-Bearbeitungs-Buttons -->
+                        
                         <div class="d-flex">
                             <form action="{% url 'edit_drill' %}" method="post">
                                 {% csrf_token %}
@@ -45,13 +59,13 @@
                             </form>
                         </div>
                         
-                        <!-- Collapse-Button -->
+                        
                         <button class="accordion-button collapsed flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
                         {{ drill.name }}
                         </button>
                     </div>
 
-                    <!-- Drill-Beschreibung -->
+                    
                     <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#accordionDrills">
                         <div class="accordion-body">
                             <strong>Beschreibung: </strong> 
@@ -60,9 +74,32 @@
                     </div>
                 {% endfor %}
                 </div>
+                -->              
+
             </div>
                 
         </div>
     </div>
 
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const drillData = JSON.parse('{{ stats|escapejs }}');
+            console.log(drillData);
+            const canvases = document.querySelectorAll('canvas.chart-canvas');
+            
+            canvases.forEach((canvas) => {
+                const drillId = canvas.getAttribute('data-drill-id');
+                const skillData = drillData[drillId];
+
+                console.log(drillId, skillData);
+                
+                createSkillDistribution(canvas, skillData)
+            });
+
+            
+        });
+    </script>
 {% endblock %}
