@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .config import Config
 from .models import *
+from .functions import create_drill, update_drill
 
 config = Config()
 
@@ -30,29 +31,29 @@ def drills(request):
 
     # Handle new drill creation
     if request.method == 'POST':
-        # TODO: Check einbauen, ob alle Felder ausgefüllt sind und sonst Fehlermeldung zurückgeben
-        
-        new_drill = {
-            'name': request.POST.get('name'),
-            'description': request.POST.get('description'),
-            'skills': request.POST.getlist('skills'),
-            'intensity': request.POST.get('intensity'),
-            'difficulty': request.POST.get('difficulty')
-        }
 
-        drill = Drill.objects.create(
-            name=new_drill['name'],
-            description=new_drill['description'],
-            intensity=new_drill['intensity'],
-            difficulty=new_drill['difficulty']
-        )
+        # Einen neuen Drill erstellen
+        if request.POST.get('action') == 'create':
+            create_drill({
+                'name': request.POST.get('name'),
+                'description': request.POST.get('description'),
+                'skills': request.POST.getlist('skills'),
+                'intensity': request.POST.get('intensity'),
+                'difficulty': request.POST.get('difficulty')
+            })
 
-        # Setze die ManyToMany-Beziehung (nach dem Erstellen)
-        if new_drill['skills']:
-            drill.skills.set(new_drill['skills'])  # erwartet Liste von IDs
-        
-        drill.save()
+        # Einen bestehenden Drill aktualisieren
+        if request.POST.get('action') == 'update':
+            update_drill({
+                'drill_id': request.POST.get('drill_id'),
+                'name': request.POST.get('name'),
+                'description': request.POST.get('description'),
+                'skills': request.POST.getlist('skills'),
+                'intensity': request.POST.get('intensity'),
+                'difficulty': request.POST.get('difficulty')
+            })
 
+    # Alle Drills abrufen
     drills = Drill.objects.all()
 
     return render(request, 'drills.html', context={
@@ -60,29 +61,40 @@ def drills(request):
     })
 
 @login_required(login_url='login') 
-def create_drill(request):
+def edit_drill(request):
     """
-    Render the create drill page.
+    Handle update, deleting or creation of drills.
     """
 
-    skills = Skill.objects.all()
-    skill_colors = config.colors['skills']
+    # POST wird bei Update oder Delete aufgerufen
+    if request.method == 'POST':
 
-    return render(request, 'create_drill.html', context={
-        'skills': skills,
-        'skill_colors': skill_colors
-    })
-
-@login_required(login_url='login')
-def delete_drill(request, drill_id):
-    """
-    Delete a drill.
-    """
+        # Update Drill
+        if request.POST.get('update'):
+            drill_id = request.POST.get('update')
+            drill = Drill.objects.get(id=drill_id)
+            skills = Skill.objects.all()
     
-    drill = Drill.objects.get(id=drill_id)
-    drill.delete()
+            return render(request, 'edit_drill.html', context={
+                'skills': skills,
+                'drill': drill
+            })
+        
+        # Delete Drill
+        elif request.POST.get('delete'):
+            drill_id = request.POST.get('delete')
+            drill = Drill.objects.get(id=drill_id)
+            drill.delete()
 
-    return redirect('drills')
+            return redirect('drills')
+    
+    # GET wird bei aufgerufen, wenn man einen neuen Drill erstellen will
+    if request.method == 'GET':
+        skills = Skill.objects.all()
+
+        return render(request, 'edit_drill.html', context={
+            'skills': skills,
+        })
 
 @login_required(login_url='login')
 def plan_training(request):

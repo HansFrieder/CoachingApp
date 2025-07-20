@@ -31,5 +31,5 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'), # Logout
     path('navigation/', views.navigation_popup, name='navigation_popup'),  # Navigation Popup
     *[path(f"{site["url"]}/", import_string(site["view"]), name=site["url"]) for site in config.sites['navigation_sites']], # Dynamic URL patterns for navigation sites
-    path('drills/create/', views.create_drill, name='create_drill'),  # Create Drill
+    path('drills/edit/', views.edit_drill, name='edit_drill'),  # Edit or delete Drill
 ]

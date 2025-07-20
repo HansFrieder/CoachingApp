@@ -1,38 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <!-- Über dem Strich -->
     <div class="container-md ps-5 pe-5">
+        
+        <!-- Überschrift -->
         <div class="row">
             <div class="col text-center m-2 p-2 pb-0">
                 <h2 class="text-uppercase fw-bold">Drills</h2>
             </div>
         </div>
+
+        <!-- Button zum Erstellen eines neuen Drills -->
         <div class="row pb-4 border-bottom border-dark border-1">
             <div class="col-1 col-md-3"></div>
             <div class="col-10 col-md-6 d-flex justify-content-center">
-                <a class="button btn btn-light custom-nav-btn flex-grow-1" href="{% url 'create_drill' %}">&#xff0b; Neuer Drill</a>
+                <a 
+                    class="button btn btn-light custom-nav-btn flex-grow-1" 
+                    href="{% url 'edit_drill' %}"
+                >&#xff0b; Neuer Drill</a>
             </div>
             <div class="col-1 col-md-3"></div>
         </div>
 
+        <!-- Unter dem Strich -->
         <div class="row">
+            
+            <!-- Drill-Liste -->
             <div class="col">
                 <div class="accordion" id="accordionDrills">
                 {% for drill in drills %}
                     <div class="accordion-header d-flex mt-2 mb-2">
+
+                        <!-- Drill-Bearbeitungs-Buttons -->
                         <div class="d-flex">
-                            <button class="btn btn-outline-secondary btn-sm flex-fill m-1" type="button" data-bs-toggle="modal" data-bs-target="#editDrillModal{{ forloop.counter }}">
-                                &#9998;
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm flex-fill m-1" type="button" data-bs-toggle="modal" data-bs-target="#deleteDrillModal{{ forloop.counter }}">
-                                &#10006;
-                            </button>
+                            <form action="{% url 'edit_drill' %}" method="post">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-secondary btn-sm flex-fill m-1" type="submit" name="update" value="{{ drill.id }}">
+                                    &#9998;
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm flex-fill m-1" type="submit" name="delete" value="{{ drill.id }}">
+                                    &#10006;
+                                </button>
+                            </form>
                         </div>
+                        
+                        <!-- Collapse-Button -->
                         <button class="accordion-button collapsed flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
                         {{ drill.name }}
                         </button>
-                        
                     </div>
+
+                    <!-- Drill-Beschreibung -->
                     <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#accordionDrills">
                         <div class="accordion-body">
                             <strong>Beschreibung: </strong> 
@@ -45,7 +64,5 @@
                 
         </div>
     </div>
-    <!-- Drill Liste -->
-    <!-- Drills anzeigen und bearbeiten können -->
 
 {% endblock %}
