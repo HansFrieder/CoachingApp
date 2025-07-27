@@ -47,13 +47,16 @@ class Drill(models.Model):
         self.stats = {
             "color": config.colors["skills"].get(level2_main[0][0], "#FFFFFF"), # Color
             "level2_distr": list(level2_dist.values()), # Verteilung Level 2 als Liste ("Offense", "Defense", etc.)
+            "intensity": self.intensity, # Intensität
+            "difficulty": self.difficulty, # Schwierigkeit
         }
 
     def save(self, *args, **kwargs):
         """
         Trigger: Saving a Drill instance.
+        Only call calc_stats if this is not a creation (i.e., if the instance already exists).
         """
+        if self.pk:  # Wird nur aufgerufen, wenn das Objekt bereits existiert
+            self.calc_stats()
 
-        self.calc_stats()
-        
         super().save(*args, **kwargs)

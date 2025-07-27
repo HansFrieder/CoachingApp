@@ -56,10 +56,10 @@ class Config:
 
         self.colors = {
             "skills": {
-                1: "#108BDD",  # Blue
-                2: "#FC4C24",  # Red
-                3: "#E86BF8",  # Purple
-                4: "#F5D311",  # Yellow
-                5: "#00BFAE"  # Teal
+            1: "#A7D8F5",  # Pastellblau
+            2: "#FFD1C1",  # Pastellrot
+            3: "#E6C7F7",  # Pastelllila
+            4: "#FFF7B2",  # Pastellgelb
+            5: "#B2F7EF"   # Pastelltürkis
             }
         }

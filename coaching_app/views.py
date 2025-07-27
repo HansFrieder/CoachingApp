@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from .config import Config
 from .models import *
 from .functions import create_drill, update_drill
@@ -44,7 +45,7 @@ def drills(request):
             })
 
         # Einen bestehenden Drill aktualisieren
-        if request.POST.get('action') == 'update':
+        elif request.POST.get('action') == 'update':
             update_drill({
                 'drill_id': request.POST.get('drill_id'),
                 'name': request.POST.get('name'),
@@ -57,8 +58,13 @@ def drills(request):
     # Alle Drills abrufen
     drills = Drill.objects.all()
 
+    # Drills Paginattion
+    paginator = Paginator(drills, 10)  # 10 drills per page
+    page = request.GET.get('page', 1)
+    drills = paginator.get_page(page)
+
     # Stat Daten als json übergeben
-    stats = {drill.id: drill.stats["level2_distr"] for drill in drills}
+    stats = {drill.id: drill.stats for drill in drills}
     stats_json = json.dumps(stats)
 
     return render(request, 'drills.html', context={
