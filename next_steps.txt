@@ -1,0 +1,12 @@
+NEXT STEPS:
+
+Drill-Liste:
+--> Pagination funktionsfähig machen
+--> Filter und Suchfunktion einbauen (vielleicht eine sinnvolle Sortierung überlegen)
+--> Pop-Up für Drill Informationen bauen
+
+Trainingsplanung bauen:
+--> Fragestellungen: 
+    Wie funktioniert die Drill-Auswahl? 
+    Wie kann ich die Informationen sehen? 
+    Wie werden Traingseinheiten gespeichert?

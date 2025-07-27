@@ -14,14 +14,19 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
-        <!-- Navigation -->
+        <!-- Kopfzeile mit Authentifizierung -->
         {% if not hide_navbar %}
         <nav class="navbar bg-dark container-fluid p-2 align-items-center">
+            
+            <!-- Logo und Link zur Hauptseite -->
             <a class="navbar-brand text-light" href="{% url 'mainpage' %}">Coaching App</a>
             {% if user.is_authenticated %}
+            
+            <!-- User Information und Logout -->
             <form class="d-flex align-items-center m-0" method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
                 <span class="navbar-text text-light">{{ user.username }}</span>
@@ -31,19 +36,24 @@
         </nav>
         {% endif %}
     </header>
+    
     <main>
         {% block content %}
         {% endblock %}
-        <!-- Floating Button -->
+        
+        <!-- Navigation Button -->
         {% if user.is_authenticated and not hide_navbar %}
         <a class="btn btn-light custom-nav-btn position-fixed bottom-0 end-0 m-4 rounded-circle shadow p-0" href="{% url 'navigation_popup' %}">
             <img class="p-0 m-0" src="{% static 'images/basketball-icon.png' %}" alt="Menu" width="60" height="60">
         </a>
         {% endif %}
     </main>
+    
     <footer>
         <p>&copy; 2025 Coaching App. All rights reserved.</p>
     </footer>
+    
+    <script src="{% static 'js/scripts.js' %}"></script>
     {% block scripts %}
     {% endblock %}
 </body>
