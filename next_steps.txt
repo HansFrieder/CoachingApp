@@ -3,9 +3,11 @@ NEXT STEPS:
 Drill-Liste:
 --> Pagination funktionsfähig machen (x)
     -> Scrollsby einfügen
-    -> Seiten-Navigation schöner machen
+    -> Seiten-Navigation schöner machen (x)
 --> Filter und Suchfunktion einbauen (vielleicht eine sinnvolle Sortierung überlegen) (x)
---> Pop-Up für Drill Informationen bauen
+--> Pop-Up für Drill Informationen bauen (x)
+    -> Statistiken einbauen
+    -> Pop-Up designen
 
 Trainingsplanung bauen:
 --> Fragestellungen: 
