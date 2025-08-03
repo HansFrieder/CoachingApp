@@ -55,20 +55,35 @@ def drills(request):
                 'difficulty': request.POST.get('difficulty')
             })
 
-    # Alle Drills abrufen
+    # Filter aufnehmen
+    filter_dict = {
+        'search': request.GET.get('search', None),
+        'skill': request.GET.get('skill', None) # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl 
+    }
+
+    # Daten abrufen
     drills = Drill.objects.all()
+    drills = drills.order_by('name')  # Sortieren nach Name
+    skills = Skill.objects.all()
+
+    # Filter anwenden
+    if filter_dict['search']:
+        drills = drills.filter(name__icontains=filter_dict['search'])
+    if filter_dict['skill']:
+        drills = drills.filter(skills__name__icontains=filter_dict['skill'])
 
     # Drills Paginattion
     paginator = Paginator(drills, 10)  # 10 drills per page
     page = request.GET.get('page', 1)
-    drills = paginator.get_page(page)
+    drills_page = paginator.get_page(page)
 
     # Stat Daten als json übergeben
     stats = {drill.id: drill.stats for drill in drills}
     stats_json = json.dumps(stats)
 
     return render(request, 'drills.html', context={
-        'drills': drills,
+        'drills': drills_page,
+        'skills': skills,
         'stats': stats_json
     })
 
