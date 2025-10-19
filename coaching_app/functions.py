@@ -67,3 +67,31 @@ def update_drill(updated_drill:dict) -> None:
     drill.save()
 
     return None
+
+
+def create_list_view(
+    model:object,
+    request:object,
+    search:str = 'name',
+    filter:list = [],
+    buttons:list = ['update', 'delete'],
+    on_click:str = 'popup',
+    custom_canvases:int = 0,
+    custom_style_props:str = None
+) -> dict:
+    
+    """
+    Function to create a context dict for rendering a list view,
+    using the inclusion of "list.html" template.
+    """
+
+    model_objects = model.objects.all().order_by(search)
+
+    filter_dict = {
+        'search': request.GET.get(search, None), # Suchfeld -> required/Defalt: 'name'
+        **{f: request.GET.get(f, None) for f in filter} # Für jeden Filter
+    }
+
+    
+
+    return {}

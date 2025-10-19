@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from .config import Config
 from .models import *
-from .functions import create_drill, update_drill
+from .functions import create_drill, update_drill, create_list_view
 import json
 
 config = Config()
@@ -24,6 +24,29 @@ def navigation_popup(request):
         'hide_navbar': True,  # Hide the navbar in the popup
         'navigation_sites': config.sites['navigation_sites']
     })
+
+@login_required(login_url='login')
+def drills_new(request):
+    """
+    VERSUCH
+    """
+
+    # Extra Content für Custom Style
+    stats = {drill.id: drill.stats for drill in drills}
+    stats_json = json.dumps(stats)
+
+    context = create_list_view(
+        Drill,
+        request,
+        search='name',
+        filter=['skills', 'level2_main'],
+        buttons=['update', 'delete'],
+        on_click='popup',
+        custom_canvases=3,
+        custom_style_props=stats_json
+    )
+
+    return render(request, 'drills_new.html', context=context)
 
 @login_required(login_url='login') 
 def drills(request):
