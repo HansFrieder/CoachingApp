@@ -88,10 +88,10 @@ def create_list_view(
     model_objects = model.objects.all().order_by(search)
 
     filter_dict = {
-        'search': request.GET.get(search, None), # Suchfeld -> required/Defalt: 'name'
+        'search': request.GET.get(search, None), # Suchfeld -> required/Default: 'name'
         **{f: request.GET.get(f, None) for f in filter} # Für jeden Filter
     }
 
-    
+    # TODO
 
     return {}

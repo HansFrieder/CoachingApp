@@ -12,5 +12,9 @@ Drill-Liste:
 Trainingsplanung bauen:
 --> Fragestellungen: 
     -> Wie funktioniert die Drill-Auswahl? 
+        -> Pop-Up Liste, bei der die Drills per drag and drop in einen container geschmissen werden können
+        -> Default Min (bspw 10) lassen sich dann anschließend in der Trainingsübersicht anpassen
+        -> Es kann jederzeit zwischen Drill-Auswahl und Training-Planen hin und her gewechselt werden
     -> Wie kann ich die Informationen sehen? 
     -> Wie werden Traingseinheiten gespeichert?
+    -> Was passiert mit Custom Drills und Platzhaltern
