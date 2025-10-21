@@ -2,19 +2,21 @@ NEXT STEPS:
 
 Drill-Liste:
 --> Pagination funktionsfähig machen (x)
-    -> Scrollsby einfügen
+    -> Scrollsby einfügen (x)
     -> Seiten-Navigation schöner machen (x)
 --> Filter und Suchfunktion einbauen (vielleicht eine sinnvolle Sortierung überlegen) (x)
 --> Pop-Up für Drill Informationen bauen (x)
     -> Statistiken einbauen
     -> Pop-Up designen
+--> Stats in Liste beschriften
+    -> Beispiel Sleeper App
 
 Trainingsplanung bauen:
 --> Fragestellungen: 
-    -> Wie funktioniert die Drill-Auswahl? 
+    -> Wie funktioniert die Drill-Auswahl?
         -> Pop-Up Liste, bei der die Drills per drag and drop in einen container geschmissen werden können
         -> Default Min (bspw 10) lassen sich dann anschließend in der Trainingsübersicht anpassen
         -> Es kann jederzeit zwischen Drill-Auswahl und Training-Planen hin und her gewechselt werden
-    -> Wie kann ich die Informationen sehen? 
+    -> Wie kann ich die Informationen sehen?
     -> Wie werden Traingseinheiten gespeichert?
     -> Was passiert mit Custom Drills und Platzhaltern

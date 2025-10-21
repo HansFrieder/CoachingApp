@@ -13,14 +13,14 @@ def mainpage(request):
     """
     Render the main page of the application.
     """
-    return render(request, 'mainpage.html')
+    return render(request, 'pages/mainpage.html')
 
 @login_required(login_url='login')
 def navigation_popup(request):
     """
     Render the navigation popup for authenticated users.
     """
-    return render(request, 'navigation_popup.html', context={
+    return render(request, 'pages/navigation_popup.html', context={
         'hide_navbar': True,  # Hide the navbar in the popup
         'navigation_sites': config.sites['navigation_sites']
     })
@@ -46,7 +46,7 @@ def drills_new(request):
         custom_style_props=stats_json
     )
 
-    return render(request, 'drills_new.html', context=context)
+    return render(request, 'pages/drills_new.html', context=context)
 
 @login_required(login_url='login') 
 def drills(request):
@@ -104,7 +104,7 @@ def drills(request):
     stats = {drill.id: drill.stats for drill in drills}
     stats_json = json.dumps(stats)
 
-    return render(request, 'drills.html', context={
+    return render(request, 'pages/drills.html', context={
         'drills': drills_page,
         'skills': skills,
         'stats': stats_json
@@ -142,7 +142,7 @@ def edit_drill(request):
     if request.method == 'GET':
         skills = Skill.objects.all()
 
-        return render(request, 'edit_drill.html', context={
+        return render(request, 'pages/edit_drill.html', context={
             'skills': skills,
         })
 
@@ -151,25 +151,25 @@ def plan_training(request):
     """
     Render the plan training page.
     """
-    return render(request, 'plan_training.html')
+    return render(request, 'pages/plan_training.html')
 
 @login_required(login_url='login')
 def training_report(request):   
     """
     Render the training report page.
     """
-    return render(request, 'training_report.html')
+    return render(request, 'pages/training_report.html')
 
 @login_required(login_url='login')
 def roster(request):    
     """
     Render the roster page.
     """
-    return render(request, 'roster.html')
+    return render(request, 'pages/roster.html')
 
 @login_required(login_url='login')
 def standings(request):   
     """
     Render the standings page.
     """
-    return render(request, 'standings.html')
+    return render(request, 'pages/standings.html')
