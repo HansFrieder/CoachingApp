@@ -60,3 +60,43 @@ class Drill(models.Model):
             self.calc_stats()
 
         super().save(*args, **kwargs)
+
+class Training(models.Model):
+    """
+    Model representing a training session in the coaching app.
+    """
+
+    date = models.DateField()
+    time = models.DurationField()
+    actions = models.JSONField(default=dict, blank=True)
+    """
+    actions = [{
+        "drill": drill_id or "custom",
+        "duration": default 10 minutes,
+        "description": "Custom description if drill is 'custom'"
+    }]
+    """
+    drills = models.ManyToManyField(Drill, related_name='trainings')
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Training on {self.date}"
+    
+    def fill_drills(self):
+        """
+        Fill the drills ManyToMany field based on the actions JSONField.
+        """
+
+        drill_ids = [action['drill'] for action in self.actions if action['drill'] != 'custom']
+        drills = Drill.objects.filter(id__in=drill_ids)
+        self.drills.set(drills)
+    
+    def save(self, *args, **kwargs):
+        """
+        Trigger: Saving a Training instance.
+        Only call fill_drills if this is not a creation (i.e., if the instance already exists).
+        """
+        if self.pk:  # Wird nur aufgerufen, wenn das Objekt bereits existiert
+            self.fill_drills()
+
+        super().save(*args, **kwargs)

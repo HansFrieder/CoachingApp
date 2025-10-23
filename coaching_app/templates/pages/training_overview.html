@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- Ebene 0 -->
+    <div class="container-md ps-5 pe-5">
+        <!-- Über dem Strich -->
+        
+        <!-- Überschrift -->
+        <div class="row">
+            <div class="col text-center m-2 p-2 pb-0">
+                <h2 class="text-uppercase fw-bold">Training</h2>
+            </div>
+        </div>
+
+    <!-- Button zum Erstellen eines neuen Drills -->
+        <div class="row pb-4 border-bottom border-dark border-1">
+            <div class="col-1 col-md-3"></div>
+            <div class="col-10 col-md-6 d-flex justify-content-center">
+                <a 
+                    class="btn btn-dark custom-nav-btn flex-grow-1" 
+                    href="{% url 'plan_training' %}"
+                >&#xff0b; Neues Training Planen</a>
+            </div>
+            <div class="col-1 col-md-3"></div>
+        </div>
+
+        <!-- Unter dem Strich -->
+
+    </div>
+{% endblock %}

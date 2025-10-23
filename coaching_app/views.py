@@ -125,7 +125,7 @@ def edit_drill(request):
             drill = Drill.objects.get(id=drill_id)
             skills = Skill.objects.all()
     
-            return render(request, 'edit_drill.html', context={
+            return render(request, 'pages/edit_drill.html', context={
                 'skills': skills,
                 'drill': drill
             })
@@ -145,6 +145,13 @@ def edit_drill(request):
         return render(request, 'pages/edit_drill.html', context={
             'skills': skills,
         })
+
+@login_required(login_url='login')
+def training_overview(request):
+    """
+    Render the training page.
+    """
+    return render(request, 'pages/training_overview.html')
 
 @login_required(login_url='login')
 def plan_training(request):

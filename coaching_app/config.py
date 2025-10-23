@@ -13,9 +13,9 @@ class Config:
                 'url': 'drills',
                 'view': 'coaching_app.views.drills'
             }, {
-                'name': 'Training planen',
-                'url': 'plan_training',
-                'view': 'coaching_app.views.plan_training'
+                'name': 'Training',
+                'url': 'training_overview',
+                'view': 'coaching_app.views.training_overview'
             }, {
                 'name': 'Trainings Report',
                 'url': 'training_report',

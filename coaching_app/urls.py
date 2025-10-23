@@ -32,4 +32,5 @@ urlpatterns = [
     path('navigation/', views.navigation_popup, name='navigation_popup'),  # Navigation Popup
     *[path(f"{site["url"]}/", import_string(site["view"]), name=site["url"]) for site in config.sites['navigation_sites']], # Dynamic URL patterns for navigation sites
     path('drills/edit/', views.edit_drill, name='edit_drill'),  # Edit or delete Drill
+    path('training/plan/', views.plan_training, name='plan_training'),  # Plan or edit Training
 ]
