@@ -17,6 +17,9 @@ Trainingsplanung bauen:
         -> Pop-Up Liste, bei der die Drills per drag and drop in einen container geschmissen werden können
         -> Default Min (bspw 10) lassen sich dann anschließend in der Trainingsübersicht anpassen
         -> Es kann jederzeit zwischen Drill-Auswahl und Training-Planen hin und her gewechselt werden
+        -> Idee für Funktionsweise: "Fake-Submit" einbauen, der alle Informationen, 
+            die schon eingegeben sind an Backend sendet und die Seite inkl. Drill-Liste neu Rendert, wurden die Drills ausgewählt, 
+            gibt es wieder ein Fake-Submit und am ende einen echten
     -> Wie kann ich die Informationen sehen?
     -> Wie werden Traingseinheiten gespeichert?
     -> Was passiert mit Custom Drills und Platzhaltern

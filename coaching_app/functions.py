@@ -1,3 +1,6 @@
+from django.core.paginator import Paginator
+import json
+
 from .models import *
 
 def create_drill(new_drill:dict) -> None:
@@ -68,30 +71,61 @@ def update_drill(updated_drill:dict) -> None:
 
     return None
 
-
-def create_list_view(
-    model:object,
-    request:object,
-    search:str = 'name',
-    filter:list = [],
-    buttons:list = ['update', 'delete'],
-    on_click:str = 'popup',
-    custom_canvases:int = 0,
-    custom_style_props:str = None
+def create_drill_list(
+    filter_dict: dict,
 ) -> dict:
-    
-    """
-    Function to create a context dict for rendering a list view,
-    using the inclusion of "list.html" template.
-    """
+    '''
+    Create a filtered and paginated drill lists with all information to render "pages/drill_list.html":
+    '''
 
-    model_objects = model.objects.all().order_by(search)
+    # Daten abrufen
+    drills = Drill.objects.all()
+    drills = drills.order_by('name')  # Sortieren nach Name
+    skills = Skill.objects.all()
 
-    filter_dict = {
-        'search': request.GET.get(search, None), # Suchfeld -> required/Default: 'name'
-        **{f: request.GET.get(f, None) for f in filter} # Für jeden Filter
+    # Filter anwenden
+    if filter_dict['search']:
+        drills = drills.filter(name__icontains=filter_dict['search'])
+    if filter_dict['skill']:
+        drills = drills.filter(skills__name__icontains=filter_dict['skill'])
+
+    # Drills Paginattion
+    paginator = Paginator(drills, 10)  # 10 drills per page
+    drills_page = paginator.get_page(filter_dict['page'])
+
+    # Stat Daten als json übergeben
+    stats = {drill.id: drill.stats for drill in drills}
+    stats_json = json.dumps(stats)
+
+    return {
+        'drills': drills_page,
+        'skills': skills,
+        'stats': stats_json
     }
 
-    # TODO
+# def create_list_view(
+#     model:object,
+#     request:object,
+#     search:str = 'name',
+#     filter:list = [],
+#     buttons:list = ['update', 'delete'],
+#     on_click:str = 'popup',
+#     custom_canvases:int = 0,
+#     custom_style_props:str = None
+# ) -> dict:
+    
+#     """
+#     Function to create a context dict for rendering a list view,
+#     using the inclusion of "list.html" template.
+#     """
 
-    return {}
+#     model_objects = model.objects.all().order_by(search)
+
+#     filter_dict = {
+#         'search': request.GET.get(search, None), # Suchfeld -> required/Default: 'name'
+#         **{f: request.GET.get(f, None) for f in filter} # Für jeden Filter
+#     }
+
+#     # TODO
+
+#     return {}
