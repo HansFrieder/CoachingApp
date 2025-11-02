@@ -112,3 +112,7 @@ function closePopUp() {
     const popUpList = document.getElementById('PopUpList');
     popUpList.style.display = 'none';
 }
+
+
+
+

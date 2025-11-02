@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -83,7 +84,7 @@ def drills(request):
     filter_dict = {
         'search': request.GET.get('search', None),
         'skill': request.GET.get('skill', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
-        'page': request.GET.get('page', 1)
+        # 'page': request.GET.get('page', 1)
     }
 
     # Drill Context holen
@@ -175,3 +176,25 @@ def standings(request):
     Render the standings page.
     """
     return render(request, 'pages/standings.html')
+
+# API für Drill Context erstellen
+@login_required(login_url='login')
+def api_drills(request):
+    """
+    API endpoint to get drill context based on filters.
+    """
+
+    context = {}
+
+    # Filter aufnehmen
+    filter_dict = {
+        'search': request.GET.get('search', None),
+        'skill': request.GET.get('skill', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
+        # 'page': request.GET.get('page', 1)
+    }
+
+    # Drill Context holen
+    drill_list_context = create_drill_list(filter_dict)
+    context.update(drill_list_context)
+
+    return JsonResponse(context)

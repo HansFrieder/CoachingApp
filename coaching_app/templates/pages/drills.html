@@ -26,11 +26,11 @@
 
         <!-- Unter dem Strich -->
 
-        {% include 'components/drill_list.html' %}
+        <drill-list action="{% url 'api_drills' %}"></drill-list>
+
+        <!-- % include 'components/drill_list.html' % -->
     </div>
 {% endblock %}
 
 {% block scripts %}
-    <script>
-    </script>
 {% endblock %}

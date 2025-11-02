@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator
+from django.core import serializers
 import json
 
 from .models import *
@@ -81,7 +82,7 @@ def create_drill_list(
     # Daten abrufen
     drills = Drill.objects.all()
     drills = drills.order_by('name')  # Sortieren nach Name
-    skills = Skill.objects.all()
+    
 
     # Filter anwenden
     if filter_dict['search']:
@@ -90,16 +91,23 @@ def create_drill_list(
         drills = drills.filter(skills__name__icontains=filter_dict['skill'])
 
     # Drills Paginattion
-    paginator = Paginator(drills, 10)  # 10 drills per page
-    drills_page = paginator.get_page(filter_dict['page'])
+    # paginator = Paginator(drills, 10)  # 10 drills per page
+    # drills_page = paginator.get_page(filter_dict['page'])
+    drills_json = serializers.serialize("json", drills)
+
+    # Skill Daten als Json übergeben
+    skills = Skill.objects.all()
+    skills_json = serializers.serialize("json", skills)
 
     # Stat Daten als json übergeben
     stats = {drill.id: drill.stats for drill in drills}
     stats_json = json.dumps(stats)
 
     return {
-        'drills': drills_page,
-        'skills': skills,
+        # 'drills': drills_page,
+        'drills': drills_json,
+        # 'skills': skills,
+        'skills': skills_json,
         'stats': stats_json
     }
 
