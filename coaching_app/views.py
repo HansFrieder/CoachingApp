@@ -7,8 +7,10 @@ from .models import *
 from .functions import create_drill, create_drill_list, update_drill
 import json
 
+# globals
 config = Config()
 
+# Render Views
 @login_required(login_url='login')
 def mainpage(request):
     """
@@ -25,29 +27,6 @@ def navigation_popup(request):
         'hide_navbar': True,  # Hide the navbar in the popup
         'navigation_sites': config.sites['navigation_sites']
     })
-
-@login_required(login_url='login')
-def drills_new(request):
-    """
-    VERSUCH
-    """
-
-    # Extra Content für Custom Style
-    stats = {drill.id: drill.stats for drill in drills}
-    stats_json = json.dumps(stats)
-
-    context = create_list_view(
-        Drill,
-        request,
-        search='name',
-        filter=['skills', 'level2_main'],
-        buttons=['update', 'delete'],
-        on_click='popup',
-        custom_canvases=3,
-        custom_style_props=stats_json
-    )
-
-    return render(request, 'pages/drills_new.html', context=context)
 
 @login_required(login_url='login') 
 def drills(request):
@@ -177,7 +156,7 @@ def standings(request):
     """
     return render(request, 'pages/standings.html')
 
-# API für Drill Context erstellen
+# APIs
 @login_required(login_url='login')
 def api_drills(request):
     """

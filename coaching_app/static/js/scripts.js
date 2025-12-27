@@ -87,32 +87,70 @@ function openPopUp(element, type) {
             <p>${description}</p>
         `;
     } else if (type === 'list') {
-        // Show List
+
+        // Show List container
         const popUpList = document.getElementById('PopUpList');
         popUpList.style.display = 'block';
+        
+        // Ensure the drill-list web component is present and initialized.
+        // If it's already in the DOM but was added before, set it to display block.
+        let closeSpan = popUpList.querySelector('span.close');
+        if (!closeSpan) { // Not found, create it
+            closeSpan = document.createElement('span');
+            closeSpan.className = 'close';
+            closeSpan.setAttribute('onclick', 'closePopUp()');
+            closeSpan.innerHTML = '&times;';
+            popUpList.insertBefore(closeSpan, popUpList.firstChild);
+        } else { // Exists, ensure it's the first child
+            if (popUpList.firstChild !== closeSpan) {
+            popUpList.insertBefore(closeSpan, popUpList.firstChild);
+            }
+        }
 
-        fetch('/training/plan/')
-            .then(response => response.text())
-            .then(html => {
-                popUpList.innerHTML = html;
-            });
+        // Ensure the drill-list web component is present and initialized.
+        let drillListEl = popUpList.querySelector('drill-list');
+        if (!drillListEl) {
+            const drillList = document.createElement('drill-list');
+            drillList.setAttribute('action', '/api/drills/');
+            drillList.setAttribute('isselectable', 'true');
+            popUpList.appendChild(drillList);
+        } else {
+            drillListEl.style.display = 'block';
+        }
     }
 }
 
 function closePopUp() {
     // Hide Background
     const popUpBg = document.getElementById('PopUpBg');
-    popUpBg.style.display = 'none';
-    
+    if (popUpBg) {
+        popUpBg.style.display = 'none';
+    }
+
     // Hide Content
     const popUpContent = document.getElementById('PopUpContent');
-    popUpContent.style.display = 'none';
+    if (popUpContent) {
+        popUpContent.style.display = 'none';
+    }
 
     // Hide List
     const popUpList = document.getElementById('PopUpList');
-    popUpList.style.display = 'none';
+    if (popUpList) {
+        popUpList.style.display = 'none';
+    }
 }
 
+function selectDrill(element, color) {
 
-
-
+    // Get parent element
+    const parent = element.parentElement;
+    if (!parent) return;
+    
+    if (parent.getAttribute('selected') === 'true') { // deselect
+        parent.setAttribute('selected', 'false');
+        parent.style.backgroundColor = color || '#FFFFFF';
+    } else { // select
+        parent.setAttribute('selected', 'true');
+        parent.style.backgroundColor = '#FFFFFF';
+    }
+}

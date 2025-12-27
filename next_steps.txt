@@ -5,21 +5,24 @@ Drill-Liste:
     -> Scrollsby einfügen (x)
     -> Seiten-Navigation schöner machen (x)
 --> Filter und Suchfunktion einbauen (vielleicht eine sinnvolle Sortierung überlegen) (x)
---> Pop-Up für Drill Informationen bauen (x)
+--> Accordion für Drill Informationen bauen (x)
     -> Statistiken einbauen
-    -> Pop-Up designen
+    -> Accordion designen
 --> Stats in Liste beschriften
     -> Beispiel Sleeper App
 
 Trainingsplanung bauen:
 --> Fragestellungen: 
     -> Wie funktioniert die Drill-Auswahl?
-        -> Pop-Up Liste, bei der die Drills per drag and drop in einen container geschmissen werden können
+        -> Pop-Up Liste, bei der die Drills selektiert werden können (x)
+        -> Drills sollen automatisch in der Trainingsplanungsansicht angezeigt werden, wenn sie selected sind
         -> Default Min (bspw 10) lassen sich dann anschließend in der Trainingsübersicht anpassen
-        -> Es kann jederzeit zwischen Drill-Auswahl und Training-Planen hin und her gewechselt werden
-        -> Idee für Funktionsweise: "Fake-Submit" einbauen, der alle Informationen, 
-            die schon eingegeben sind an Backend sendet und die Seite inkl. Drill-Liste neu Rendert, wurden die Drills ausgewählt, 
-            gibt es wieder ein Fake-Submit und am ende einen echten
+        -> Es kann jederzeit zwischen Drill-Auswahl und Training-Planen hin und her gewechselt werden (x)
+        -> Funktionsweise:
+            Selektierte Drills werden zusammen mit custom Slots unten angezeigt und können per Drag und Drop verschoben werden.
+        -> HIER WEITERMACHEN
+        -> Submit Reihenfolge und Infos
+        -> Backend Handling
     -> Wie kann ich die Informationen sehen?
     -> Wie werden Traingseinheiten gespeichert?
     -> Was passiert mit Custom Drills und Platzhaltern

@@ -3,28 +3,150 @@ class DrillList extends HTMLElement {
         super();
     }
 
+    // Beim Anhängen an das DOM
     async connectedCallback() {
-        const apiUrl = this.getAttribute('action');
+        this.apiUrl = this.getAttribute('action');
+        this.isSelectable = this.getAttribute('isselectable') === 'true';
+        this.updateUrlTemplate = this.getAttribute('update-url-template') || '';
+        this.csrfToken = this.getAttribute('data-csrf');
 
-        console.log(apiUrl);
+        await this.loadAndRender();
+    }
 
-        const res = await fetch(apiUrl);
+    // Daten laden und rendern
+    async loadAndRender(url = this.apiUrl) {
+        const res = await fetch(url);
         const data = await res.json();
 
-        const drills = JSON.parse(data.drills);
-        const skills = JSON.parse(data.skills);
-        const stats = JSON.parse(data.stats);
+        this.render({
+            drills: JSON.parse(data.drills),
+            skills: JSON.parse(data.skills),
+            stats: JSON.parse(data.stats),
+            apiUrl: this.apiUrl,
+        });
 
-        console.log(drills);
-        console.log(skills);
-        console.log(stats);
+    }
 
-        // Hier kannst du den Code hinzufügen, um die Drill-Liste zu rendern
+    // Charts erstellen
+    initCharts(stats) {
+        this.querySelectorAll("canvas.chart-canvas").forEach(canvas => {
+            const drillId = canvas.dataset.drillId;
+            const skillData = stats?.[drillId] ?? [];
+
+            if (canvas.dataset.type === "skillDist") {
+                createSkillDistribution(canvas, skillData);
+            } else {
+                createBar(canvas, skillData);
+            }
+        });
+    }
+
+    // Event-Handler für das Filterformular (Re-Request)
+    attachFilterHandler() {
+        const form = this.querySelector("#filter-form");
+        if (!form) return;
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const url = new URL(form.action);
+            const params = new URLSearchParams(new FormData(form));
+            url.search = params.toString();
+
+            this.loadAndRender(url.toString());
+        });
+    }
+    
+    // Render-Methode zum Erstellen der HTML-Struktur
+    render({ drills, skills, stats, apiUrl }) {
         this.innerHTML = `
-            <ul>
-                ${drills.map(drill => `<li>${drill.fields.name}</li>`).join('')}
-            </ul>
+        <!-- Filter- und Suchleiste -->
+        <div class="row">
+            <div class="col mt-2">
+                <form id="filter-form" class="d-flex align-items-center" method="GET" action="${apiUrl}">
+                    <!-- Nach Namen suchen -->
+                    <input type="text" name="search" placeholder="Suche..." class="form-control border border-2 border-dark me-2">
+                    
+                    <!-- nach Hauptskill Filtern-->
+                    <select name="skill" class="form-select border border-2 border-dark me-2">
+                        <option value="">All</option>
+                        ${skills.map(skill => `<option value="${skill.pk}">${skill.fields.name}</option>`)}
+                    </select>
+                    <button type="submit" class="btn btn-dark custom-nav-btn border border-2 border-dark">Suchen</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Drill Liste -->
+        <div class="row">
+            <div class="col p-0">
+            <div class="overflow-auto" style="max-height: 400px;">
+            ${drills.map(drill => `
+            <div class="row mx-0 border border-dark rounded mt-2 p-2" style="background-color: ${ (stats[drill.pk]?.color) ?? '#ffffff' };">
+                <!-- Text -->
+                <div 
+                class="col p-0 text-truncate d-flex align-items-center fw-bold"
+                data-name ="${drill.fields.name}"
+                data-description="${drill.fields.description ?? ''}"
+                ${this.isSelectable ? `onclick="selectDrill(this, '${stats[drill.pk]?.color}')"` : `onclick="openPopUp(this, 'drill')"`}
+                >${drill.fields.name}</div>
+
+                <!-- Statistiken und Buttons -->
+                <div class="col d-flex justify-content-end">
+
+                    <!-- Statistiken (Durch JS befüllt) -->
+                    <canvas data-drill-id="${drill.pk}" data-type="skillDist" class="chart-canvas me-1" width="40" height="40"></canvas>
+                    <canvas data-drill-id="${drill.pk}" data-type="intensity" class="chart-canvas" width="40" height="40"></canvas>
+                    <canvas data-drill-id="${drill.pk}" data-type="difficulty" class="chart-canvas" width="40" height="40"></canvas>
+
+                    <!-- Buttons -->
+                    
+                    ${this.updateUrlTemplate !== '' ? `
+                        <form class="d-flex flex-row align-items-stretch m-0" action="${this.updateUrlTemplate}" method="post">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="${this.csrfToken}">
+                            <button 
+                                class="btn btn-sm flex-fill mx-1" 
+                                type="submit" 
+                                name="update"
+                                value="${drill.pk}" 
+                                style="background-color: white; border-width:2px; border-color:black;">
+                                &#9998;
+                            </button>
+                        </form>
+                    ` : ''}
+
+                    <!-- Toggle description (Bootstrap collapse) -->
+                    
+                    <button 
+                        class="btn btn-sm flex-fill mx-1" 
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#desc-${drill.pk}"
+                        aria-expanded="false"
+                        aria-controls="desc-${drill.pk}"
+                        style="background-color: white; border-width:2px; border-color:black;">
+                        &#9660;
+                    </button>
+                </div>
+            </div>
+
+            <!-- Collapsible description -->
+            <div class="collapse mt-1" id="desc-${drill.pk}">
+                <div class="border border-dark rounded p-2 bg-light">
+                <strong>${drill.fields.name}</strong><br>
+                ${drill.fields.description ?? ''}
+                </div>
+            </div>
+
+            `).join('')}
+            </div>
+            </div>
+        </div>
         `;
+
+        // JS Scripts
+        this.initCharts(stats);
+        this.attachFilterHandler();
     }
 }
 customElements.define("drill-list", DrillList);

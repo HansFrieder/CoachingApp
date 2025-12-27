@@ -88,7 +88,7 @@ def create_drill_list(
     if filter_dict['search']:
         drills = drills.filter(name__icontains=filter_dict['search'])
     if filter_dict['skill']:
-        drills = drills.filter(skills__name__icontains=filter_dict['skill'])
+        drills = drills.filter(skills__pk=filter_dict['skill'])
 
     # Drills Paginattion
     # paginator = Paginator(drills, 10)  # 10 drills per page
@@ -110,30 +110,3 @@ def create_drill_list(
         'skills': skills_json,
         'stats': stats_json
     }
-
-# def create_list_view(
-#     model:object,
-#     request:object,
-#     search:str = 'name',
-#     filter:list = [],
-#     buttons:list = ['update', 'delete'],
-#     on_click:str = 'popup',
-#     custom_canvases:int = 0,
-#     custom_style_props:str = None
-# ) -> dict:
-    
-#     """
-#     Function to create a context dict for rendering a list view,
-#     using the inclusion of "list.html" template.
-#     """
-
-#     model_objects = model.objects.all().order_by(search)
-
-#     filter_dict = {
-#         'search': request.GET.get(search, None), # Suchfeld -> required/Default: 'name'
-#         **{f: request.GET.get(f, None) for f in filter} # Für jeden Filter
-#     }
-
-#     # TODO
-
-#     return {}
