@@ -47,6 +47,16 @@
         </div>
         
         <!-- Drag and Drop Area für Planung -->
+        <!-- HIER WEITERMACHEN -->
+        <div class="row mb-3">
+            <div class="col-1"></div>
+            <div class="col-10" id="sortable">
+                <li data-id="1">Eintrag A</li>
+                <li data-id="2">Eintrag B</li>
+                <li data-id="3">Eintrag C</li>
+            </div>
+            <div class="col-1"></div>
+        </div>
 
         <!-- Submit Training -->
         <div class="row mb-3">
@@ -70,4 +80,15 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+  const sortable = new Sortable(document.getElementById('sortable'), {
+    animation: 150,
+    onEnd: function () {
+      const order = [...document.querySelectorAll('#sortable li')]
+        .map(li => li.dataset.id);
+
+      console.log(order); // neue Reihenfolge
+    }
+  });
+</script>
 {% endblock %}
