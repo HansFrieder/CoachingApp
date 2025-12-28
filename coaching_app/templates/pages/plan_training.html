@@ -40,8 +40,9 @@
             </div>
             <div class="col-5 d-flex">
                 <button 
-                    type="button" 
-                    class="btn btn-dark custom-nav-btn flex-grow-1">Custom Slot</button>
+                    type="button"
+                    class="btn btn-dark custom-nav-btn flex-grow-1"
+                    onclick="addCustomSlot()">&#43; Custom Slot</button>
             </div>
             <div class="col-1"></div>
         </div>
@@ -50,11 +51,7 @@
         <!-- HIER WEITERMACHEN -->
         <div class="row mb-3">
             <div class="col-1"></div>
-            <div class="col-10" id="sortable">
-                <li data-id="1">Eintrag A</li>
-                <li data-id="2">Eintrag B</li>
-                <li data-id="3">Eintrag C</li>
-            </div>
+            <div class="col-10" id="sortable"></div>
             <div class="col-1"></div>
         </div>
 
@@ -81,14 +78,89 @@
 
 {% block scripts %}
 <script>
-  const sortable = new Sortable(document.getElementById('sortable'), {
-    animation: 150,
-    onEnd: function () {
-      const order = [...document.querySelectorAll('#sortable li')]
-        .map(li => li.dataset.id);
+    // Sortable Component erstellen
+    const sortable = new Sortable(document.getElementById('sortable'), {
+        animation: 150,
+        onEnd: function () {
+        const order = [...document.querySelectorAll('#sortable li')]
+            .map(li => li.dataset.id); // neue Reihenfolge
+        }
+    });
 
-      console.log(order); // neue Reihenfolge
+    function addCustomSlot() {
+        
+        const sortableContainer = document.getElementById('sortable');
+        const customSlots = sortableContainer.querySelectorAll('training-item[data-id^="custom-"]');
+        customID = customSlots.length + 1;
+
+        // Neuen Listeneintrag erstellen
+        const item = document.createElement('training-item');
+        item.setAttribute('data-id', 'custom-' + customID);
+        item.setAttribute('data-name', 'Custom Slot ' + customID);
+        
+        // Zum Sortable Container hinzufügen
+        sortableContainer.appendChild(item);
     }
-  });
+
+    // Event Listener für Pop-up schließen
+    document.addEventListener("popupClosed", function(event) {
+        console.log("Pop-up wurde geschlossen um: " + new Date(event.detail.closedAt).toLocaleTimeString());
+        
+        // Ausgewählte Drills in Sortable hinzufügen
+        const drillList = document.getElementById('drill-list');
+        if (drillList) {
+            const selectedDrills = drillList.querySelectorAll('[selected="true"]');
+            const sortableContainer = document.getElementById('sortable');
+            const currentItems = sortableContainer.querySelectorAll('training-item[data-id]'); // Anpassen, wenn nicht mehr li item
+
+            selectedDrills.forEach(drill => {
+                const drillId = drill.getAttribute('data-drill-id');
+                const drillName = drill.getAttribute('data-name');
+                
+                // Überspringen, wenn bereits hinzugefügt
+                const alreadyAdded = sortableContainer.querySelector(`training-item[data-id="${drillId}"]`);
+                if (alreadyAdded) {
+                    return;
+                }
+
+                // Neuen Listeneintrag erstellen
+                const item = document.createElement('training-item');
+                item.setAttribute('data-id', drillId);
+                item.setAttribute('data-name', drillName);
+
+                // Zum Sortable Container hinzufügen
+                sortableContainer.appendChild(item);
+            });
+            
+            // Entfernen nicht mehr ausgewählter Drills
+            currentItems.forEach(item => {
+                const itemId = item.getAttribute('data-id');
+                const stillSelected = Array.from(selectedDrills).some(drill => drill.getAttribute('data-drill-id') === itemId);
+                
+                if (!stillSelected && !itemId.startsWith('custom-')) {
+                    sortableContainer.removeChild(item);
+                }
+            });
+        }
+    });
+
+    document.addEventListener('deleteButtonPressed', function(event) {
+        const drillId = event.detail.drillId;
+        const sortableContainer = document.getElementById('sortable');
+        const itemToDelete = sortableContainer.querySelector(`training-item[data-id="${drillId}"]`);
+        
+        if (itemToDelete) {
+            sortableContainer.removeChild(itemToDelete);
+
+            const drillList = document.getElementById('drill-list');
+            if (drillList) {
+                const drillInList = drillList.querySelector(`div[data-drill-id="${drillId}"]`);
+                if (drillInList) {
+                    drillInList.removeAttribute('selected');
+                }
+            }
+        }
+    });
+
 </script>
 {% endblock %}

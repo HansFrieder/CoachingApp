@@ -80,14 +80,16 @@ class DrillList extends HTMLElement {
         <!-- Drill Liste -->
         <div class="row">
             <div class="col p-0">
-            <div class="overflow-auto" style="max-height: 400px;">
+            <div id="drill-list" class="overflow-auto" style="max-height: 400px;">
             ${drills.map(drill => `
-            <div class="row mx-0 border border-dark rounded mt-2 p-2" style="background-color: ${ (stats[drill.pk]?.color) ?? '#ffffff' };">
+            <div 
+            data-drill-id="${drill.pk}"
+            data-name ="${drill.fields.name}"
+            class="row mx-0 border border-dark rounded mt-2 p-2" 
+            style="background-color: ${ (stats[drill.pk]?.color) ?? '#ffffff' };">
                 <!-- Text -->
                 <div 
                 class="col p-0 text-truncate d-flex align-items-center fw-bold"
-                data-name ="${drill.fields.name}"
-                data-description="${drill.fields.description ?? ''}"
                 ${this.isSelectable ? `onclick="selectDrill(this, '${stats[drill.pk]?.color}')"` : `onclick="openPopUp(this, 'drill')"`}
                 >${drill.fields.name}</div>
 
@@ -150,3 +152,41 @@ class DrillList extends HTMLElement {
     }
 }
 customElements.define("drill-list", DrillList);
+
+class TrainingItem extends HTMLElement {
+    constructor() {
+        super();
+    }
+
+    connectedCallback() {
+        this.drillId = this.getAttribute('data-id');
+        this.name = this.getAttribute('data-name');
+
+        this.render();
+
+        this.querySelector('button[name="delete"]').addEventListener('click', () => {
+            document.dispatchEvent(
+                new CustomEvent("deleteButtonPressed", { 
+                    detail: { drillId: this.drillId }
+                })
+            );
+        });
+    }
+
+    render() {
+        this.innerHTML = `
+            <div class="row mx-0 border border-dark rounded mt-2 p-2">
+                <div class="col p-0 text-truncate d-flex align-items-center fw-bold">${this.name}</div>
+
+                <button 
+                class="btn btn-sm flex-fill ms-1" 
+                type="button" 
+                name="delete"
+                style="background-color: white; border-width:2px; border-color:red;">
+                &#10006;
+                </button>
+            </div>
+        `;
+    }
+}
+customElements.define("training-item", TrainingItem);

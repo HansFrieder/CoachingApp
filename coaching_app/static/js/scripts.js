@@ -138,10 +138,16 @@ function closePopUp() {
     if (popUpList) {
         popUpList.style.display = 'none';
     }
+
+    // Event triggern, für weitere Aktionen nach dem Schließen
+    document.dispatchEvent(
+        new CustomEvent("popupClosed", {
+            detail: { closedAt: Date.now() }
+        })
+    );
 }
 
 function selectDrill(element, color) {
-
     // Get parent element
     const parent = element.parentElement;
     if (!parent) return;

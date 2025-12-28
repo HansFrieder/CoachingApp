@@ -19,7 +19,8 @@ Trainingsplanung bauen:
         -> Default Min (bspw 10) lassen sich dann anschließend in der Trainingsübersicht anpassen
         -> Es kann jederzeit zwischen Drill-Auswahl und Training-Planen hin und her gewechselt werden (x)
         -> Funktionsweise:
-            Selektierte Drills werden zusammen mit custom Slots unten angezeigt und können per Drag und Drop verschoben werden.
+            Selektierte Drills werden zusammen mit custom Slots unten angezeigt und können per Drag und Drop verschoben werden. (x)
+        -> Wird ein Objekt aus der Drag and Drop Liste entfernt, muss es auch in der Drill-Liste wieder als deselektiert erscheinen
         -> HIER WEITERMACHEN
         -> Submit Reihenfolge und Infos
         -> Backend Handling
