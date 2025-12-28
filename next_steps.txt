@@ -20,8 +20,11 @@ Trainingsplanung bauen:
         -> Es kann jederzeit zwischen Drill-Auswahl und Training-Planen hin und her gewechselt werden (x)
         -> Funktionsweise:
             Selektierte Drills werden zusammen mit custom Slots unten angezeigt und können per Drag und Drop verschoben werden. (x)
-        -> Wird ein Objekt aus der Drag and Drop Liste entfernt, muss es auch in der Drill-Liste wieder als deselektiert erscheinen
+        -> Wird ein Objekt aus der Drag and Drop Liste entfernt, muss es auch in der Drill-Liste wieder als deselektiert erscheinen (x)
         -> HIER WEITERMACHEN
+        -> Custom Names ändern
+        -> Wenn Drills gefiltert werden, erlischen die selected Drills, da Backend Operation
+        
         -> Submit Reihenfolge und Infos
         -> Backend Handling
     -> Wie kann ich die Informationen sehen?

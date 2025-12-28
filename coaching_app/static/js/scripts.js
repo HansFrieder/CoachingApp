@@ -157,6 +157,24 @@ function selectDrill(element, color) {
         parent.style.backgroundColor = color || '#FFFFFF';
     } else { // select
         parent.setAttribute('selected', 'true');
+        parent.setAttribute('data-color', color || '#FFFFFF');
         parent.style.backgroundColor = '#FFFFFF';
+    }
+}
+
+function updateTotalDuration() {
+    let totalDuration = 0;
+    document.querySelectorAll('training-item').forEach(drillDiv => {
+        const input = drillDiv.querySelector('input[name="duration"]');
+        console.log(input);
+        if (input) {
+            const duration = parseInt(input.value) || 0;
+            totalDuration += duration;
+        }
+    });
+
+    const totalDurationEl = document.getElementById('total-duration');
+    if (totalDurationEl) {
+        totalDurationEl.textContent = totalDuration;
     }
 }

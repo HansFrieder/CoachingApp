@@ -48,10 +48,16 @@
         </div>
         
         <!-- Drag and Drop Area für Planung -->
-        <!-- HIER WEITERMACHEN -->
         <div class="row mb-3">
             <div class="col-1"></div>
             <div class="col-10" id="sortable"></div>
+            <div class="col-1"></div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-1"></div>
+            <div class="col-10 text-end">
+                <strong>Gesamtdauer: </strong><span id="total-duration">0</span> Minuten
+            </div>
             <div class="col-1"></div>
         </div>
 
@@ -100,6 +106,9 @@
         
         // Zum Sortable Container hinzufügen
         sortableContainer.appendChild(item);
+
+        // Gesamtwert aktualisieren
+        updateTotalDuration();
     }
 
     // Event Listener für Pop-up schließen
@@ -130,6 +139,9 @@
 
                 // Zum Sortable Container hinzufügen
                 sortableContainer.appendChild(item);
+
+                // Gesamtwert aktualisieren
+                updateTotalDuration();
             });
             
             // Entfernen nicht mehr ausgewählter Drills
@@ -139,6 +151,9 @@
                 
                 if (!stillSelected && !itemId.startsWith('custom-')) {
                     sortableContainer.removeChild(item);
+                    
+                    // Gesamtwert aktualisieren
+                    updateTotalDuration();
                 }
             });
         }
@@ -157,7 +172,32 @@
                 const drillInList = drillList.querySelector(`div[data-drill-id="${drillId}"]`);
                 if (drillInList) {
                     drillInList.removeAttribute('selected');
+                    drillInList.style.backgroundColor = drillInList.getAttribute('data-color') || '#FFFFFF';
                 }
+            }
+
+            // Gesamtwert aktualisieren
+            updateTotalDuration();
+        }
+    });
+
+    // Total Duration aktualisieren
+    document.addEventListener('updateTotal', function() {
+        updateTotalDuration();
+    });
+
+    // Custom Name ändern
+    // HIER WEITERMACHEN
+    document.addEventListener('customNameClicked', function(event) {
+        const drillId = event.detail.drillId;
+        const sortableContainer = document.getElementById('sortable');
+        const item = sortableContainer.querySelector(`training-item[data-id="${drillId}"]`);
+        
+        if (item) {
+            const newName = prompt("Geben Sie den neuen Namen für diesen Custom Slot ein:", item.getAttribute('data-name'));
+            if (newName) {
+                item.setAttribute('data-name', newName);
+                item.render();
             }
         }
     });

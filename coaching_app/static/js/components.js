@@ -163,7 +163,8 @@ class TrainingItem extends HTMLElement {
         this.name = this.getAttribute('data-name');
 
         this.render();
-
+        
+        // Definiere Events
         this.querySelector('button[name="delete"]').addEventListener('click', () => {
             document.dispatchEvent(
                 new CustomEvent("deleteButtonPressed", { 
@@ -171,20 +172,43 @@ class TrainingItem extends HTMLElement {
                 })
             );
         });
+        this.querySelector('input[name="duration"]').addEventListener('change', () => {
+            document.dispatchEvent(
+            new CustomEvent("updateTotal")
+            );
+        });
+        if ('custom' in this.drillId) {
+            this.querySelector('div[name="name"]').addEventListener('click', () => {
+                document.dispatchEvent(
+                    new CustomEvent("customNameClicked", { 
+                        detail: { drillId: this.drillId }
+                    })
+                );
+            });
+        };
     }
 
     render() {
         this.innerHTML = `
             <div class="row mx-0 border border-dark rounded mt-2 p-2">
-                <div class="col p-0 text-truncate d-flex align-items-center fw-bold">${this.name}</div>
-
-                <button 
-                class="btn btn-sm flex-fill ms-1" 
-                type="button" 
-                name="delete"
-                style="background-color: white; border-width:2px; border-color:red;">
-                &#10006;
-                </button>
+                <div name="name" class="col p-0 text-truncate d-flex align-items-center fw-bold">${this.name}</div>
+            
+                <div class="col d-flex justify-content-end">
+                    <input
+                    name="duration"
+                    type="number"
+                    value="10"
+                    min="1"
+                    class="form-control form-control-sm me-1"
+                    style="width: 60px;">
+                    <button 
+                    class="btn btn-sm flex-fill ms-1" 
+                    type="button" 
+                    name="delete"
+                    style="background-color: white; border-width:2px; border-color:red;">
+                    &#10006;
+                    </button>
+                </div>
             </div>
         `;
     }
