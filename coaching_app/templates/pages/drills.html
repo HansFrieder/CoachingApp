@@ -26,11 +26,26 @@
         </div>
 
         <!-- Unter dem Strich -->
-        <drill-list action="{% url 'api_drills' %}"
+        <!-- <drill-list action="{% url 'api_drills' %}"
             isselectable="false"
             update-url-template="{% url 'edit_drill' %}"
             data-csrf="{{ csrf_token }}">
-        </drill-list>
+        </drill-list> -->
+        <cd-list 
+            cd-csrf="{{ csrf_token }}"
+            cd-api="{% url 'api_drills' %}" 
+            cd-edit="{% url 'edit_drill' %}"
+            isselectable="false"
+            has-skill-dist="true"
+            has-intensity="true"
+            has-difficulty="true"
+            cd-data="drills"
+            cd-chart-data="stats"
+            cd-filter-name="true"
+            cd-filter-by="skills"
+            cd-color-by="stats">
+        </cd-list>
+            
     </div>
 {% endblock %}
 

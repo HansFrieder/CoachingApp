@@ -62,7 +62,7 @@ def drills(request):
     # Filter aufnehmen
     filter_dict = {
         'search': request.GET.get('search', None),
-        'skill': request.GET.get('skill', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
+        'skills': request.GET.get('skills', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
         # 'page': request.GET.get('page', 1)
     }
 
@@ -125,7 +125,7 @@ def plan_training(request):
     # Filter aufnehmen
     filter_dict = {
         'search': request.GET.get('search', None),
-        'skill': request.GET.get('skill', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
+        'skills': request.GET.get('skills', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
         'page': request.GET.get('page', 1)
     }
 
@@ -168,7 +168,7 @@ def api_drills(request):
     # Filter aufnehmen
     filter_dict = {
         'search': request.GET.get('search', None),
-        'skill': request.GET.get('skill', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
+        'skills': request.GET.get('skills', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
         # 'page': request.GET.get('page', 1)
     }
 

@@ -113,6 +113,7 @@ function openPopUp(element, type) {
             const drillList = document.createElement('drill-list');
             drillList.setAttribute('action', '/api/drills/');
             drillList.setAttribute('isselectable', 'true');
+            drillList.setAttribute('has-delete-button', 'false');
             popUpList.appendChild(drillList);
         } else {
             drillListEl.style.display = 'block';

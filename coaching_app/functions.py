@@ -87,8 +87,8 @@ def create_drill_list(
     # Filter anwenden
     if filter_dict['search']:
         drills = drills.filter(name__icontains=filter_dict['search'])
-    if filter_dict['skill']:
-        drills = drills.filter(skills__pk=filter_dict['skill'])
+    if filter_dict['skills']:
+        drills = drills.filter(skills__pk__in=filter_dict['skills'])
 
     # Drills Paginattion
     # paginator = Paginator(drills, 10)  # 10 drills per page
