@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from .config import Config
 from .models import *
-from .functions import create_drill, create_drill_list, update_drill
+from .functions import create_drill, create_drill_list, update_drill, create_training
 import json
 
 # globals
@@ -113,6 +113,19 @@ def training_overview(request):
     """
     Render the training page.
     """
+    context = {}
+
+    if request.method == 'POST':
+
+        # Training erstellen
+        if request.POST.get('submit_action') == 'create':
+            create_training({
+                'date': request.POST.get('date'),
+                'player_count': request.POST.get('player_count'),
+                'duration': request.POST.getlist('duration'),
+                'actions': json.loads(request.POST.get('actions'))
+            })
+
     return render(request, 'pages/training_overview.html')
 
 @login_required(login_url='login')

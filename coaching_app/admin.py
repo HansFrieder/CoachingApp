@@ -3,3 +3,4 @@ from .models import *
 
 admin.site.register(Skill)
 admin.site.register(Drill)
+admin.site.register(Training)

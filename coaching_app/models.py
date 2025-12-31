@@ -67,7 +67,8 @@ class Training(models.Model):
     """
 
     date = models.DateField()
-    time = models.DurationField()
+    player_count = models.IntegerField(default=10)
+    duration = models.DurationField()
     actions = models.JSONField(default=dict, blank=True)
     """
     actions = [{

@@ -1,5 +1,6 @@
 from django.core.paginator import Paginator
 from django.core import serializers
+from datetime import datetime, timedelta
 import json
 
 from .models import *
@@ -110,3 +111,42 @@ def create_drill_list(
         'skills': skills_json,
         'stats': stats_json
     }
+
+def create_training(new_training:dict) -> None:
+    """
+    Create a new training instance.
+
+    Args:
+        new_training (dict): A dictionary containing the training's details, including:
+            - date (str): The date of the training session.
+            - player_count (int): The number of players attending.
+            - duration (str): The duration of the training session.
+            - actions (list): A list of action dictionaries associated with the training.
+            - notes (str): Additional notes for the training session.
+    Returns:
+        None
+    """
+    
+    # Actions transformieren
+    actions = []
+    for action in new_training['actions']:
+        actions.append({
+            'drill': action['id'] if 'custom' not in action['id'] else 'custom',
+            'duration': action.get('duration', 10),
+            'description': action.get('name') if 'custom' in action['id'] else None
+        })
+
+    print(new_training['date'])
+    # Training-Objekt erstellen
+    training = Training.objects.create(
+        date=datetime.strptime(new_training['date'], "%Y-%m-%d").date(),
+        player_count=new_training['player_count'],
+        duration=timedelta(minutes=sum([int(x) for x in new_training['duration']])),
+        actions=actions,
+        notes=""
+    )
+
+    # Speichere das Training-Objekt
+    training.save()
+
+    return None

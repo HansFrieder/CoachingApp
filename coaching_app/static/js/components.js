@@ -128,7 +128,7 @@ class CDList extends HTMLElement {
             filterForm.setAttribute('action', apiUrl);
             filterForm.setAttribute('cd-filter-name', this.filterName);
             filterForm.setAttribute('cd-filter-by', this.filterBy);
-            filterForm.setAttribute('cd-filter-options', JSON.stringify(filter));
+            filterForm.setAttribute('cd-filter-options', JSON.stringify(filter)); // Optimierung: Direktes Übergeben des Filter-Arrays als JSON-String
             filterContainer.appendChild(filterForm);
         }
 
@@ -227,12 +227,22 @@ class CDListItem extends HTMLElement {
         this.hasIntensity = this.getAttribute('has-intensity') === 'true'   || false;
         this.hasDifficulty = this.getAttribute('has-difficulty') === 'true' || false;
         this.hasDuration = this.getAttribute('has-duration') === 'true'   || false;
+        if (this.hasDuration) {
+            this.setAttribute('data-duration', this.getAttribute('data-duration') || '10');
+        }
         this.hasDeleteButton = this.getAttribute('has-delete-button') === 'true' || false;
         this.nameIsEditable = this.getAttribute('name-is-editable') === 'true' || false;
 
         this.render();
 
         // Definiere Events
+        const nameInput = this.querySelector('input[name="name"]');
+        if (nameInput) {
+            nameInput.addEventListener('change', () => {
+                nameInput.setAttribute('data-name', nameInput.value);
+                nameInput.parentElement.parentElement.setAttribute('data-name', nameInput.value);
+            });
+        }
         const deleteButton = this.querySelector('button[name="delete"]');
         if (deleteButton) {
             deleteButton.addEventListener('click', () => {
@@ -247,8 +257,9 @@ class CDListItem extends HTMLElement {
         if (durationInput) {
             durationInput.addEventListener('change', () => {
                 document.dispatchEvent(
-                new CustomEvent("updateTotal")
+                    new CustomEvent("updateTotal")
                 );
+                durationInput.parentElement.parentElement.parentElement.setAttribute('data-duration', durationInput.value);
             });
         }
         if (this.isSelectable) {
@@ -273,7 +284,7 @@ class CDListItem extends HTMLElement {
             const nameInput = document.createElement("Input");
             nameInput.type = "text";
             nameInput.name = "name";
-            nameInput.value = this.name;
+            nameInput.value = this.getAttribute('data-name') || this.name;
             nameInput.className = "col form-control form-control-sm d-flex align-items-center justify-content-start fw-bold";
             nameInput.style.minWidth = "0";
             container.appendChild(nameInput);
@@ -320,7 +331,7 @@ class CDListItem extends HTMLElement {
             const durationInput = document.createElement('input');
             durationInput.type = "number";
             durationInput.name = "duration";
-            durationInput.value = "10";
+            durationInput.value = this.getAttribute('data-duration') || "10";
             durationInput.min = "1";
             durationInput.className = "form-control form-control-sm me-1";
             durationInput.style.width = "60px";
