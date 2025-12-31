@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- TODO schöner gestalten und UI verbessern -->
+    <div class="container-md ps-5 pe-5">
+        <div class="row">
+            <div class="col text-center m-2 p-2 pb-0">
+                <h2 class="text-uppercase fw-bold">Training planen</h2>
+            </div>
+        </div>
+    </div>
+
+    <form action="{% url 'training_overview' %}" method="post">
+        {% csrf_token %}
+        
+        <!-- Datum auswählen -->
+        <div class="row mb-3">
+            <div class="col-1"></div>
+            <div class="col-10">
+                <label for="date" class="form-label">Datum wählen</label>
+                <input
+                    type="date"
+                    class="form-control"
+                    id="date"
+                    name="date"
+                    value="{% if training %}{{ training.date|date:'Y-m-d' }}{% else %}{{ today|date:'Y-m-d' }}{% endif %}"
+                >
+            </div>
+            <div class="col-1"></div>
+        </div>
+
+        <!-- Drills auswählen -->
+         <div class="row mb-3">
+            <div class="col-1"></div>
+            <div class="col-5 d-flex">
+                <button 
+                    type="button"   
+                    class="btn btn-dark custom-nav-btn flex-grow-1"
+                    onclick="openPopUp(this, 'list')">Drills auswählen</button>
+            </div>
+            <div class="col-5 d-flex">
+                <button 
+                    type="button"
+                    class="btn btn-dark custom-nav-btn flex-grow-1"
+                    onclick="addCustomSlot()">&#43; Custom Slot</button>
+            </div>
+            <div class="col-1"></div>
+        </div>
+        
+        <!-- Drag and Drop Area für Planung -->
+        <div class="row mb-3">
+            <div class="col-1"></div>
+            <div class="col-10" id="sortable"></div>
+            <div class="col-1"></div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-1"></div>
+            <div class="col-10 text-end">
+                <strong>Gesamtdauer: </strong><span id="total-duration">0</span> Minuten
+            </div>
+            <div class="col-1"></div>
+        </div>
+
+        <!-- Submit Training -->
+        <div class="row mb-3">
+            <div class="col-1"></div>
+            <div class="col-10">
+                <button 
+                    type="submit" 
+                    class="btn btn-primary" 
+                    name="action" 
+                    value="{% if training %}update{% else %}create{% endif %}"
+                >{% if training %}Training aktualisieren{% else %}Training erstellen{% endif %}</button>
+            </div>
+            <div class="col-1"></div>
+        </div>
+    </form>
+
+    <!-- Ebene 1 -->
+    <div class="pop-up-background" id="PopUpBg"></div>
+    <div class="pop-up-content" id="PopUpList"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Sortable Component erstellen
+    const sortable = new Sortable(document.getElementById('sortable'), {
+        animation: 150,
+        onEnd: function () {
+        const order = [...document.querySelectorAll('#sortable li')]
+            .map(li => li.dataset.id); // neue Reihenfolge
+        }
+    });
+
+    // Custom Slot hinzufügen
+    function addCustomSlot() {
+        
+        const sortableContainer = document.getElementById('sortable');
+        const customSlots = sortableContainer.querySelectorAll('cd-list-item[data-id^="custom-"]');
+        customID = customSlots.length + 1;
+
+        // Neuen Listeneintrag erstellen
+        const item = document.createElement('cd-list-item');
+        item.setAttribute('data-id', 'custom-' + customID);
+        item.setAttribute('data-name', 'Custom Slot ' + customID);
+        item.setAttribute('has-duration', 'true');
+        item.setAttribute('has-delete-button', 'true');
+        item.setAttribute('name-is-editable', 'true');
+        item.setAttribute('duration-placeholder', 'Dauer in Minuten');
+        
+        // Zum Sortable Container hinzufügen
+        sortableContainer.appendChild(item);
+
+        // Gesamtwert aktualisieren
+        updateTotalDuration();
+    }
+
+    // Event Listener für Pop-up schließen
+    document.addEventListener("popupClosed", function(event) {
+        
+        // Ausgewählte Drills in Sortable hinzufügen
+        const drillList = document.querySelector('cd-list');
+        console.log("Drill List Element:", drillList);
+        if (drillList) {
+            const selectedDrills = drillList.querySelectorAll('cd-list-item[selected="true"]');
+            const sortableContainer = document.getElementById('sortable');
+            const currentItems = sortableContainer.querySelectorAll('cd-list-item[data-id]');
+
+            selectedDrills.forEach(drill => {
+                const drillId = drill.getAttribute('data-id');
+                const drillName = drill.getAttribute('data-name');
+                
+                // Überspringen, wenn bereits hinzugefügt
+                const alreadyAdded = sortableContainer.querySelector(`cd-list-item[data-id="${drillId}"]`);
+                if (alreadyAdded) {
+                    return;
+                }
+
+                // Neuen Listeneintrag erstellen
+                const item = document.createElement('cd-list-item');
+                item.setAttribute('data-id', drillId);
+                item.setAttribute('data-name', drillName);
+                item.setAttribute('has-duration', 'true');
+                item.setAttribute('has-delete-button', 'true');
+
+                // Zum Sortable Container hinzufügen
+                sortableContainer.appendChild(item);
+
+                // Gesamtwert aktualisieren
+                updateTotalDuration();
+            });
+            
+            // Entfernen nicht mehr ausgewählter Drills
+            currentItems.forEach(item => {
+                const itemId = item.getAttribute('data-id');
+                const stillSelected = Array.from(selectedDrills).some(drill => drill.getAttribute('data-id') === itemId);
+                
+                if (!stillSelected && !itemId.startsWith('custom-')) {
+                    sortableContainer.removeChild(item);
+                    
+                    // Gesamtwert aktualisieren
+                    updateTotalDuration();
+                }
+            });
+        }
+    });
+
+    // Drill aus Training entfernen
+    document.addEventListener('deleteButtonPressed', function(event) {
+        const ItemId = event.detail.ItemId;
+        const sortableContainer = document.getElementById('sortable');
+        const itemToDelete = sortableContainer.querySelector(`cd-list-item[data-id="${ItemId}"]`);
+        
+        // Items mit Selektion vergleichen und Entfernen
+        if (itemToDelete) {
+            sortableContainer.removeChild(itemToDelete);
+            const ItemList = document.querySelector('cd-list');
+            if (ItemList) {
+                const ItemInList = ItemList.querySelector(`cd-list-item[data-id="${ItemId}"]`);
+                if (ItemInList) {
+                    ItemInList.removeAttribute('selected');
+                    const ItemContainer = ItemInList.querySelector('#item-container');
+                    console.log("ItemContainer:", ItemContainer);
+                    ItemContainer.style.backgroundColor = ItemInList.getAttribute('data-color') || '#FFFFFF';
+                }
+            }
+
+            // Gesamtwert aktualisieren
+            updateTotalDuration();
+        }
+    });
+
+    // Total Duration aktualisieren
+    document.addEventListener('updateTotal', function() {
+        updateTotalDuration();
+    });
+
+</script>
+{% endblock %}

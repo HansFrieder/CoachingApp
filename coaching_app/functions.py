@@ -1,3 +1,7 @@
+from django.core.paginator import Paginator
+from django.core import serializers
+import json
+
 from .models import *
 
 def create_drill(new_drill:dict) -> None:
@@ -67,3 +71,42 @@ def update_drill(updated_drill:dict) -> None:
     drill.save()
 
     return None
+
+def create_drill_list(
+    filter_dict: dict,
+) -> dict:
+    '''
+    Create a filtered and paginated drill lists with all information to render "pages/drill_list.html":
+    '''
+
+    # Daten abrufen
+    drills = Drill.objects.all()
+    drills = drills.order_by('name')  # Sortieren nach Name
+    
+
+    # Filter anwenden
+    if filter_dict['search']:
+        drills = drills.filter(name__icontains=filter_dict['search'])
+    if filter_dict['skills']:
+        drills = drills.filter(skills__pk__in=filter_dict['skills'])
+
+    # Drills Paginattion
+    # paginator = Paginator(drills, 10)  # 10 drills per page
+    # drills_page = paginator.get_page(filter_dict['page'])
+    drills_json = serializers.serialize("json", drills)
+
+    # Skill Daten als Json übergeben
+    skills = Skill.objects.all()
+    skills_json = serializers.serialize("json", skills)
+
+    # Stat Daten als json übergeben
+    stats = {drill.id: drill.stats for drill in drills}
+    stats_json = json.dumps(stats)
+
+    return {
+        # 'drills': drills_page,
+        'drills': drills_json,
+        # 'skills': skills,
+        'skills': skills_json,
+        'stats': stats_json
+    }

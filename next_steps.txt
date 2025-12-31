@@ -2,15 +2,31 @@ NEXT STEPS:
 
 Drill-Liste:
 --> Pagination funktionsfähig machen (x)
-    -> Scrollsby einfügen
+    -> Scrollsby einfügen (x)
     -> Seiten-Navigation schöner machen (x)
 --> Filter und Suchfunktion einbauen (vielleicht eine sinnvolle Sortierung überlegen) (x)
---> Pop-Up für Drill Informationen bauen (x)
+--> Accordion für Drill Informationen bauen (x)
     -> Statistiken einbauen
-    -> Pop-Up designen
+    -> Accordion designen
+--> Stats in Liste beschriften
+    -> Beispiel Sleeper App
 
 Trainingsplanung bauen:
 --> Fragestellungen: 
-    -> Wie funktioniert die Drill-Auswahl? 
-    -> Wie kann ich die Informationen sehen? 
+    -> Wie funktioniert die Drill-Auswahl?
+        -> Pop-Up Liste, bei der die Drills selektiert werden können (x)
+        -> Drills sollen automatisch in der Trainingsplanungsansicht angezeigt werden, wenn sie selected sind
+        -> Default Min (bspw 10) lassen sich dann anschließend in der Trainingsübersicht anpassen
+        -> Es kann jederzeit zwischen Drill-Auswahl und Training-Planen hin und her gewechselt werden (x)
+        -> Funktionsweise:
+            Selektierte Drills werden zusammen mit custom Slots unten angezeigt und können per Drag und Drop verschoben werden. (x)
+        -> Wird ein Objekt aus der Drag and Drop Liste entfernt, muss es auch in der Drill-Liste wieder als deselektiert erscheinen (x)
+        -> Neue List Komponente mit Trainingsplanugn verknüpfen (x)
+        -> Custom Names ändern (x) -> funktionieren noch nicht im Drag and Drop
+        -> Wenn Drills gefiltert werden, erlischen die selected Drills, da Backend Operation (x)
+    -> Wie kann ich die Informationen sehen? (x)
     -> Wie werden Traingseinheiten gespeichert?
+        -> HIER WEITERMACHEN
+        -> Submit Reihenfolge und Infos
+        -> Backend Handling
+    -> Was passiert mit Custom Drills und Platzhaltern (x)

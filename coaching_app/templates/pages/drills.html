@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% csrf_token %}
+    <!-- Ebene 0 -->
+    <div class="container-md ps-5 pe-5">
+        <!-- Über dem Strich -->
+
+        <!-- Überschrift -->
+        <div class="row">
+            <div class="col text-center m-2 p-2 pb-0">
+                <h2 class="text-uppercase fw-bold">Drills</h2>
+            </div>
+        </div>
+
+        <!-- Button zum Erstellen eines neuen Drills -->
+        <div class="row pb-4 border-bottom border-dark border-1">
+            <div class="col-1 col-md-3"></div>
+            <div class="col-10 col-md-6 d-flex justify-content-center">
+                <a 
+                    class="btn btn-dark custom-nav-btn flex-grow-1" 
+                    href="{% url 'edit_drill' %}"
+                >&#xff0b; Neuer Drill</a>
+            </div>
+            <div class="col-1 col-md-3"></div>
+        </div>
+
+        <!-- Unter dem Strich -->
+        <!-- <drill-list action="{% url 'api_drills' %}"
+            isselectable="false"
+            update-url-template="{% url 'edit_drill' %}"
+            data-csrf="{{ csrf_token }}">
+        </drill-list> -->
+        <cd-list 
+            cd-csrf="{{ csrf_token }}"
+            cd-api="{% url 'api_drills' %}" 
+            cd-edit="{% url 'edit_drill' %}"
+            isselectable="false"
+            has-skill-dist="true"
+            has-intensity="true"
+            has-difficulty="true"
+            cd-data="drills"
+            cd-chart-data="stats"
+            cd-filter-name="true"
+            cd-filter-by="skills"
+            cd-color-by="stats">
+        </cd-list>
+            
+    </div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

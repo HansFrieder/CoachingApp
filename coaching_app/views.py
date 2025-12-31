@@ -1,26 +1,29 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from .config import Config
 from .models import *
-from .functions import create_drill, update_drill
+from .functions import create_drill, create_drill_list, update_drill
 import json
 
+# globals
 config = Config()
 
+# Render Views
 @login_required(login_url='login')
 def mainpage(request):
     """
     Render the main page of the application.
     """
-    return render(request, 'mainpage.html')
+    return render(request, 'pages/mainpage.html')
 
 @login_required(login_url='login')
 def navigation_popup(request):
     """
     Render the navigation popup for authenticated users.
     """
-    return render(request, 'navigation_popup.html', context={
+    return render(request, 'pages/navigation_popup.html', context={
         'hide_navbar': True,  # Hide the navbar in the popup
         'navigation_sites': config.sites['navigation_sites']
     })
@@ -30,6 +33,7 @@ def drills(request):
     """
     Render the drills page.
     """
+    context = {}
 
     # Handle new drill creation
     if request.method == 'POST':
@@ -58,34 +62,15 @@ def drills(request):
     # Filter aufnehmen
     filter_dict = {
         'search': request.GET.get('search', None),
-        'skill': request.GET.get('skill', None) # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl 
+        'skills': request.GET.get('skills', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
+        # 'page': request.GET.get('page', 1)
     }
 
-    # Daten abrufen
-    drills = Drill.objects.all()
-    drills = drills.order_by('name')  # Sortieren nach Name
-    skills = Skill.objects.all()
+    # Drill Context holen
+    drill_list_context = create_drill_list(filter_dict)
+    context.update(drill_list_context)
 
-    # Filter anwenden
-    if filter_dict['search']:
-        drills = drills.filter(name__icontains=filter_dict['search'])
-    if filter_dict['skill']:
-        drills = drills.filter(skills__name__icontains=filter_dict['skill'])
-
-    # Drills Paginattion
-    paginator = Paginator(drills, 10)  # 10 drills per page
-    page = request.GET.get('page', 1)
-    drills_page = paginator.get_page(page)
-
-    # Stat Daten als json übergeben
-    stats = {drill.id: drill.stats for drill in drills}
-    stats_json = json.dumps(stats)
-
-    return render(request, 'drills.html', context={
-        'drills': drills_page,
-        'skills': skills,
-        'stats': stats_json
-    })
+    return render(request, 'pages/drills.html', context=context)
 
 @login_required(login_url='login') 
 def edit_drill(request):
@@ -102,7 +87,7 @@ def edit_drill(request):
             drill = Drill.objects.get(id=drill_id)
             skills = Skill.objects.all()
     
-            return render(request, 'edit_drill.html', context={
+            return render(request, 'pages/edit_drill.html', context={
                 'skills': skills,
                 'drill': drill
             })
@@ -119,34 +104,76 @@ def edit_drill(request):
     if request.method == 'GET':
         skills = Skill.objects.all()
 
-        return render(request, 'edit_drill.html', context={
+        return render(request, 'pages/edit_drill.html', context={
             'skills': skills,
         })
+
+@login_required(login_url='login')
+def training_overview(request):
+    """
+    Render the training page.
+    """
+    return render(request, 'pages/training_overview.html')
 
 @login_required(login_url='login')
 def plan_training(request):
     """
     Render the plan training page.
     """
-    return render(request, 'plan_training.html')
+    context = {}
+
+    # Filter aufnehmen
+    filter_dict = {
+        'search': request.GET.get('search', None),
+        'skills': request.GET.get('skills', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
+        'page': request.GET.get('page', 1)
+    }
+
+    # Drill Context holen
+    drill_list_context = create_drill_list(filter_dict)
+    context.update(drill_list_context)
+
+    return render(request, 'pages/plan_training.html', context=context)
 
 @login_required(login_url='login')
 def training_report(request):   
     """
     Render the training report page.
     """
-    return render(request, 'training_report.html')
+    return render(request, 'pages/training_report.html')
 
 @login_required(login_url='login')
 def roster(request):    
     """
     Render the roster page.
     """
-    return render(request, 'roster.html')
+    return render(request, 'pages/roster.html')
 
 @login_required(login_url='login')
 def standings(request):   
     """
     Render the standings page.
     """
-    return render(request, 'standings.html')
+    return render(request, 'pages/standings.html')
+
+# APIs
+@login_required(login_url='login')
+def api_drills(request):
+    """
+    API endpoint to get drill context based on filters.
+    """
+
+    context = {}
+
+    # Filter aufnehmen
+    filter_dict = {
+        'search': request.GET.get('search', None),
+        'skills': request.GET.get('skills', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
+        # 'page': request.GET.get('page', 1)
+    }
+
+    # Drill Context holen
+    drill_list_context = create_drill_list(filter_dict)
+    context.update(drill_list_context)
+
+    return JsonResponse(context)

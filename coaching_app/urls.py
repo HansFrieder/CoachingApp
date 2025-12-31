@@ -27,9 +27,11 @@ config = Config()
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.mainpage, name="mainpage"),  # Mainpage
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'), # Login
+    path('login/', auth_views.LoginView.as_view(template_name='pages/login.html'), name='login'), # Login
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'), # Logout
     path('navigation/', views.navigation_popup, name='navigation_popup'),  # Navigation Popup
     *[path(f"{site["url"]}/", import_string(site["view"]), name=site["url"]) for site in config.sites['navigation_sites']], # Dynamic URL patterns for navigation sites
     path('drills/edit/', views.edit_drill, name='edit_drill'),  # Edit or delete Drill
+    path('training/plan/', views.plan_training, name='plan_training'),  # Plan or edit Training
+    path('api/drills/', views.api_drills, name='api_drills'),  # API for Drill Context
 ]

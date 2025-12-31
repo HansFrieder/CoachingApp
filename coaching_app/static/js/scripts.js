@@ -67,32 +67,123 @@ function createBar(canvas, skillData) {
     ctx.fillRect(innerStartX, innerStartY, innerWidth, innerHeight);
 }
 
-function openPopUp(element) {
-    // Get the drill data
-    const name = element.getAttribute('data-name');
-    const description = element.getAttribute('data-description');
-
+function openPopUp(element, type) {
+    
     // Show Background
     const popUpBg = document.getElementById('PopUpBg');
     popUpBg.style.display = 'block';
     
-    // Show Content
-    const popUpContent = document.getElementById('PopUpContent');
-    popUpContent.style.display = 'block';
-    popUpContent.innerHTML = `
-        <span class="close" onclick="closePopUp()">&times;</span>    
-        <h2>${name}</h2>
-        <p>${description}</p>
-    `;
+    if (type === 'drill') {
 
+        // Get the drill data
+        const name = element.getAttribute('data-name');
+        const description = element.getAttribute('data-description');
+
+        // Show Content
+        const popUpContent = document.getElementById('PopUpContent');
+        popUpContent.style.display = 'block';
+        popUpContent.innerHTML = `
+            <span class="close" onclick="closePopUp()">&times;</span>    
+            <h2>${name}</h2>
+            <p>${description}</p>
+        `;
+    } else if (type === 'list') {
+
+        // Show List container
+        const popUpList = document.getElementById('PopUpList');
+        popUpList.style.display = 'block';
+        
+        // Close Button
+        let closeSpan = popUpList.querySelector('span.close');
+        if (!closeSpan) { // Not found, create it
+            closeSpan = document.createElement('span');
+            closeSpan.className = 'close';
+            closeSpan.setAttribute('onclick', 'closePopUp()');
+            closeSpan.innerHTML = '&times;';
+            popUpList.insertBefore(closeSpan, popUpList.firstChild);
+        } else { // Exists, ensure it's the first child
+            if (popUpList.firstChild !== closeSpan) {
+            popUpList.insertBefore(closeSpan, popUpList.firstChild);
+            }
+        }
+
+        // Drill-Liste im PopUp erstellen, falls noch nicht vorhanden
+        let drillListEl = popUpList.querySelector('cd-list');
+        if (!drillListEl) {
+            const drillList = document.createElement('cd-list');
+            drillList.setAttribute('cd-api', '/api/drills/');
+            drillList.setAttribute('isselectable', 'true');
+            drillList.setAttribute('has-skill-dist', 'true');
+            drillList.setAttribute('has-intensity', 'true');
+            drillList.setAttribute('has-difficulty', 'true');
+            drillList.setAttribute('cd-data', 'drills');
+            drillList.setAttribute('cd-chart-data', 'stats');
+            drillList.setAttribute('cd-filter-name', 'true');
+            drillList.setAttribute('cd-filter-by', 'skills');
+            drillList.setAttribute('cd-color-by', 'stats');
+            popUpList.appendChild(drillList);
+        } else {
+            drillListEl.style.display = 'block';
+        }
+    }
 }
 
 function closePopUp() {
+    
     // Hide Background
     const popUpBg = document.getElementById('PopUpBg');
-    popUpBg.style.display = 'none';
-    
+    if (popUpBg) {
+        popUpBg.style.display = 'none';
+    }
+
     // Hide Content
     const popUpContent = document.getElementById('PopUpContent');
-    popUpContent.style.display = 'none';
+    if (popUpContent) {
+        popUpContent.style.display = 'none';
+    }
+
+    // Hide List
+    const popUpList = document.getElementById('PopUpList');
+    if (popUpList) {
+        popUpList.style.display = 'none';
+    }
+
+    // Event triggern, für weitere Aktionen nach dem Schließen
+    document.dispatchEvent(
+        new CustomEvent("popupClosed", {
+            detail: { closedAt: Date.now() }
+        })
+    );
+}
+
+function selectItem(element, color) {
+    // Get parent element
+    const parent = element.parentElement;
+    if (!parent) return;
+    
+    if (parent.getAttribute('selected') === 'true') { // deselect
+        parent.setAttribute('selected', 'false');
+        element.style.backgroundColor = color || '#FFFFFF';
+    } else { // select
+        parent.setAttribute('selected', 'true');
+        parent.setAttribute('data-color', color || '#FFFFFF');
+        element.style.backgroundColor = '#FFFFFF';
+    }
+}
+
+function updateTotalDuration() {
+    let totalDuration = 0;
+    document.querySelectorAll('cd-list-item').forEach(drillDiv => {
+        const input = drillDiv.querySelector('input[name="duration"]');
+        console.log(input);
+        if (input) {
+            const duration = parseInt(input.value) || 0;
+            totalDuration += duration;
+        }
+    });
+
+    const totalDurationEl = document.getElementById('total-duration');
+    if (totalDurationEl) {
+        totalDurationEl.textContent = totalDuration;
+    }
 }
