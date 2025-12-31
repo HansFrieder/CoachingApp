@@ -93,16 +93,21 @@
         }
     });
 
+    // Custom Slot hinzufügen
     function addCustomSlot() {
         
         const sortableContainer = document.getElementById('sortable');
-        const customSlots = sortableContainer.querySelectorAll('training-item[data-id^="custom-"]');
+        const customSlots = sortableContainer.querySelectorAll('cd-list-item[data-id^="custom-"]');
         customID = customSlots.length + 1;
 
         // Neuen Listeneintrag erstellen
-        const item = document.createElement('training-item');
+        const item = document.createElement('cd-list-item');
         item.setAttribute('data-id', 'custom-' + customID);
         item.setAttribute('data-name', 'Custom Slot ' + customID);
+        item.setAttribute('has-duration', 'true');
+        item.setAttribute('has-delete-button', 'true');
+        item.setAttribute('name-is-editable', 'true');
+        item.setAttribute('duration-placeholder', 'Dauer in Minuten');
         
         // Zum Sortable Container hinzufügen
         sortableContainer.appendChild(item);
@@ -113,29 +118,31 @@
 
     // Event Listener für Pop-up schließen
     document.addEventListener("popupClosed", function(event) {
-        console.log("Pop-up wurde geschlossen um: " + new Date(event.detail.closedAt).toLocaleTimeString());
         
         // Ausgewählte Drills in Sortable hinzufügen
-        const drillList = document.getElementById('drill-list');
+        const drillList = document.querySelector('cd-list');
+        console.log("Drill List Element:", drillList);
         if (drillList) {
-            const selectedDrills = drillList.querySelectorAll('[selected="true"]');
+            const selectedDrills = drillList.querySelectorAll('cd-list-item[selected="true"]');
             const sortableContainer = document.getElementById('sortable');
-            const currentItems = sortableContainer.querySelectorAll('training-item[data-id]'); // Anpassen, wenn nicht mehr li item
+            const currentItems = sortableContainer.querySelectorAll('cd-list-item[data-id]');
 
             selectedDrills.forEach(drill => {
-                const drillId = drill.getAttribute('data-drill-id');
+                const drillId = drill.getAttribute('data-id');
                 const drillName = drill.getAttribute('data-name');
                 
                 // Überspringen, wenn bereits hinzugefügt
-                const alreadyAdded = sortableContainer.querySelector(`training-item[data-id="${drillId}"]`);
+                const alreadyAdded = sortableContainer.querySelector(`cd-list-item[data-id="${drillId}"]`);
                 if (alreadyAdded) {
                     return;
                 }
 
                 // Neuen Listeneintrag erstellen
-                const item = document.createElement('training-item');
+                const item = document.createElement('cd-list-item');
                 item.setAttribute('data-id', drillId);
                 item.setAttribute('data-name', drillName);
+                item.setAttribute('has-duration', 'true');
+                item.setAttribute('has-delete-button', 'true');
 
                 // Zum Sortable Container hinzufügen
                 sortableContainer.appendChild(item);
@@ -147,7 +154,7 @@
             // Entfernen nicht mehr ausgewählter Drills
             currentItems.forEach(item => {
                 const itemId = item.getAttribute('data-id');
-                const stillSelected = Array.from(selectedDrills).some(drill => drill.getAttribute('data-drill-id') === itemId);
+                const stillSelected = Array.from(selectedDrills).some(drill => drill.getAttribute('data-id') === itemId);
                 
                 if (!stillSelected && !itemId.startsWith('custom-')) {
                     sortableContainer.removeChild(item);
@@ -159,20 +166,23 @@
         }
     });
 
+    // Drill aus Training entfernen
     document.addEventListener('deleteButtonPressed', function(event) {
-        const drillId = event.detail.drillId;
+        const ItemId = event.detail.ItemId;
         const sortableContainer = document.getElementById('sortable');
-        const itemToDelete = sortableContainer.querySelector(`training-item[data-id="${drillId}"]`);
+        const itemToDelete = sortableContainer.querySelector(`cd-list-item[data-id="${ItemId}"]`);
         
+        // Items mit Selektion vergleichen und Entfernen
         if (itemToDelete) {
             sortableContainer.removeChild(itemToDelete);
-
-            const drillList = document.getElementById('drill-list');
-            if (drillList) {
-                const drillInList = drillList.querySelector(`div[data-drill-id="${drillId}"]`);
-                if (drillInList) {
-                    drillInList.removeAttribute('selected');
-                    drillInList.style.backgroundColor = drillInList.getAttribute('data-color') || '#FFFFFF';
+            const ItemList = document.querySelector('cd-list');
+            if (ItemList) {
+                const ItemInList = ItemList.querySelector(`cd-list-item[data-id="${ItemId}"]`);
+                if (ItemInList) {
+                    ItemInList.removeAttribute('selected');
+                    const ItemContainer = ItemInList.querySelector('#item-container');
+                    console.log("ItemContainer:", ItemContainer);
+                    ItemContainer.style.backgroundColor = ItemInList.getAttribute('data-color') || '#FFFFFF';
                 }
             }
 
@@ -184,22 +194,6 @@
     // Total Duration aktualisieren
     document.addEventListener('updateTotal', function() {
         updateTotalDuration();
-    });
-
-    // Custom Name ändern
-    // HIER WEITERMACHEN
-    document.addEventListener('customNameClicked', function(event) {
-        const drillId = event.detail.drillId;
-        const sortableContainer = document.getElementById('sortable');
-        const item = sortableContainer.querySelector(`training-item[data-id="${drillId}"]`);
-        
-        if (item) {
-            const newName = prompt("Geben Sie den neuen Namen für diesen Custom Slot ein:", item.getAttribute('data-name'));
-            if (newName) {
-                item.setAttribute('data-name', newName);
-                item.render();
-            }
-        }
     });
 
 </script>

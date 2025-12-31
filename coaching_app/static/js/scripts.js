@@ -74,6 +74,7 @@ function openPopUp(element, type) {
     popUpBg.style.display = 'block';
     
     if (type === 'drill') {
+
         // Get the drill data
         const name = element.getAttribute('data-name');
         const description = element.getAttribute('data-description');
@@ -92,8 +93,7 @@ function openPopUp(element, type) {
         const popUpList = document.getElementById('PopUpList');
         popUpList.style.display = 'block';
         
-        // Ensure the drill-list web component is present and initialized.
-        // If it's already in the DOM but was added before, set it to display block.
+        // Close Button
         let closeSpan = popUpList.querySelector('span.close');
         if (!closeSpan) { // Not found, create it
             closeSpan = document.createElement('span');
@@ -107,13 +107,20 @@ function openPopUp(element, type) {
             }
         }
 
-        // Ensure the drill-list web component is present and initialized.
-        let drillListEl = popUpList.querySelector('drill-list');
+        // Drill-Liste im PopUp erstellen, falls noch nicht vorhanden
+        let drillListEl = popUpList.querySelector('cd-list');
         if (!drillListEl) {
-            const drillList = document.createElement('drill-list');
-            drillList.setAttribute('action', '/api/drills/');
+            const drillList = document.createElement('cd-list');
+            drillList.setAttribute('cd-api', '/api/drills/');
             drillList.setAttribute('isselectable', 'true');
-            drillList.setAttribute('has-delete-button', 'false');
+            drillList.setAttribute('has-skill-dist', 'true');
+            drillList.setAttribute('has-intensity', 'true');
+            drillList.setAttribute('has-difficulty', 'true');
+            drillList.setAttribute('cd-data', 'drills');
+            drillList.setAttribute('cd-chart-data', 'stats');
+            drillList.setAttribute('cd-filter-name', 'true');
+            drillList.setAttribute('cd-filter-by', 'skills');
+            drillList.setAttribute('cd-color-by', 'stats');
             popUpList.appendChild(drillList);
         } else {
             drillListEl.style.display = 'block';
@@ -122,6 +129,7 @@ function openPopUp(element, type) {
 }
 
 function closePopUp() {
+    
     // Hide Background
     const popUpBg = document.getElementById('PopUpBg');
     if (popUpBg) {
@@ -148,24 +156,24 @@ function closePopUp() {
     );
 }
 
-function selectDrill(element, color) {
+function selectItem(element, color) {
     // Get parent element
     const parent = element.parentElement;
     if (!parent) return;
     
     if (parent.getAttribute('selected') === 'true') { // deselect
         parent.setAttribute('selected', 'false');
-        parent.style.backgroundColor = color || '#FFFFFF';
+        element.style.backgroundColor = color || '#FFFFFF';
     } else { // select
         parent.setAttribute('selected', 'true');
         parent.setAttribute('data-color', color || '#FFFFFF');
-        parent.style.backgroundColor = '#FFFFFF';
+        element.style.backgroundColor = '#FFFFFF';
     }
 }
 
 function updateTotalDuration() {
     let totalDuration = 0;
-    document.querySelectorAll('training-item').forEach(drillDiv => {
+    document.querySelectorAll('cd-list-item').forEach(drillDiv => {
         const input = drillDiv.querySelector('input[name="duration"]');
         console.log(input);
         if (input) {

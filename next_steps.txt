@@ -21,13 +21,12 @@ Trainingsplanung bauen:
         -> Funktionsweise:
             Selektierte Drills werden zusammen mit custom Slots unten angezeigt und können per Drag und Drop verschoben werden. (x)
         -> Wird ein Objekt aus der Drag and Drop Liste entfernt, muss es auch in der Drill-Liste wieder als deselektiert erscheinen (x)
+        -> Neue List Komponente mit Trainingsplanugn verknüpfen (x)
+        -> Custom Names ändern (x) -> funktionieren noch nicht im Drag and Drop
+        -> Wenn Drills gefiltert werden, erlischen die selected Drills, da Backend Operation (x)
+    -> Wie kann ich die Informationen sehen? (x)
+    -> Wie werden Traingseinheiten gespeichert?
         -> HIER WEITERMACHEN
-        -> Neue List Komponente mit Trainingsplanugn verknüpfen
-        -> Custom Names ändern
-        -> Wenn Drills gefiltert werden, erlischen die selected Drills, da Backend Operation
-        
         -> Submit Reihenfolge und Infos
         -> Backend Handling
-    -> Wie kann ich die Informationen sehen?
-    -> Wie werden Traingseinheiten gespeichert?
-    -> Was passiert mit Custom Drills und Platzhaltern
+    -> Was passiert mit Custom Drills und Platzhaltern (x)
