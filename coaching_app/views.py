@@ -2,9 +2,10 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.forms.models import model_to_dict
 from .config import Config
 from .models import *
-from .functions import create_drill, create_drill_list, update_drill, create_training
+from .functions import create_drill, create_drill_list, update_drill, create_training, create_training_list
 import json
 
 # globals
@@ -123,7 +124,8 @@ def training_overview(request):
                 'date': request.POST.get('date'),
                 'player_count': request.POST.get('player_count'),
                 'duration': request.POST.getlist('duration'),
-                'actions': json.loads(request.POST.get('actions'))
+                'actions': json.loads(request.POST.get('actions')),
+                'notes': request.POST.get('notes')
             })
 
     return render(request, 'pages/training_overview.html')
@@ -133,20 +135,40 @@ def plan_training(request):
     """
     Render the plan training page.
     """
-    context = {}
+    # POST wird bei Update oder Delete aufgerufen
+    if request.method == 'POST':
 
-    # Filter aufnehmen
-    filter_dict = {
-        'search': request.GET.get('search', None),
-        'skills': request.GET.get('skills', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
-        'page': request.GET.get('page', 1)
-    }
+        # Update Drill
+        if request.POST.get('update'):
+            training_id = request.POST.get('update')
+            training = Training.objects.get(id=training_id)
+            training = model_to_dict(training)
 
-    # Drill Context holen
-    drill_list_context = create_drill_list(filter_dict)
-    context.update(drill_list_context)
+            # Namen zuweisen
+            for action in training["actions"]:
+                drill_id = action["drill"]
+                name = Drill.objects.get(pk=drill_id).name if "custom" not in action["drill"] else action["description"]
+                action["name"] = name
+    
+            return render(request, 'pages/plan_training.html', context={
+                'training': training,
+            })
+        
+        # Delete Drill
+        elif request.POST.get('delete'):
+            training_id = request.POST.get('delete')
+            training = Training.objects.get(id=training_id)
+            training_id.delete()
 
-    return render(request, 'pages/plan_training.html', context=context)
+            return redirect('training_overview')
+    
+    # GET wird bei aufgerufen, wenn man einen neuen Drill erstellen will
+    if request.method == 'GET':
+        drills = Drill.objects.all()
+
+        return render(request, 'pages/plan_training.html', context={
+            'drills': drills,
+        })
 
 @login_required(login_url='login')
 def training_report(request):   
@@ -189,4 +211,23 @@ def api_drills(request):
     drill_list_context = create_drill_list(filter_dict)
     context.update(drill_list_context)
 
+    return JsonResponse(context)
+
+@login_required(login_url='login')
+def api_training(request):
+    """
+    API endpoint to get training context based on filters.
+    """
+    context = {}
+
+    # Filter aufnehmen
+    # filter_dict = {
+    #     'date_from': request.GET.get('date_from', None),
+    #     'date_to': request.GET.get('date_to', None),
+    # }
+
+    # Training Context holen
+    training_list_context = create_training_list() # filter_dict)
+    context.update(training_list_context)
+    print(context)
     return JsonResponse(context)

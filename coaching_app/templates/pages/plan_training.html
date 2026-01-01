@@ -61,13 +61,43 @@
         <!-- Drag and Drop Area für Planung -->
         <div class="row mb-3">
             <div class="col-1"></div>
-            <div class="col-10" id="sortable"></div>
+            <div class="col-10" id="sortable">
+                {% if training %}
+                    {% for action in training.actions %}
+                        <cd-list-item
+                            data-id="{{ action.drill }}"
+                            data-name="{{ action.name }}"
+                            data-duration="{{ action.duration }}"
+                            has-duration="true"
+                            has-delete-button="true"
+                        ></cd-list-item>
+                    {% endfor %}
+                {% endif %}
+            </div>
             <div class="col-1"></div>
         </div>
+
+        <!-- Anzeige Gesamtdauer -->
         <div class="row mb-3">
             <div class="col-1"></div>
             <div class="col-10 text-end">
                 <strong>Gesamtdauer: </strong><span id="total-duration">0</span> Minuten
+            </div>
+            <div class="col-1"></div>
+        </div>
+
+        <!-- Notizfeld -->
+        <div class="row mb-3">
+            <div class="col-1"></div>
+            <div class="col-10">
+                <textarea 
+                    id="notes" 
+                    name="notes" 
+                    class="form-control" 
+                    rows="5" 
+                    placeholder="Notizen zum Training"
+                    required
+                >{% if training %}{{ training.notes }}{% else %}{{ '' }}{% endif %}</textarea>
             </div>
             <div class="col-1"></div>
         </div>
@@ -118,7 +148,6 @@
         item.setAttribute('has-duration', 'true');
         item.setAttribute('has-delete-button', 'true');
         item.setAttribute('name-is-editable', 'true');
-        item.setAttribute('duration-placeholder', 'Dauer in Minuten');
         
         // Zum Sortable Container hinzufügen
         sortableContainer.appendChild(item);

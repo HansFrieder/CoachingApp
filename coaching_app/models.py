@@ -66,6 +66,7 @@ class Training(models.Model):
     Model representing a training session in the coaching app.
     """
 
+    name = models.CharField(max_length=100, blank=True)
     date = models.DateField()
     player_count = models.IntegerField(default=10)
     duration = models.DurationField()
@@ -78,7 +79,7 @@ class Training(models.Model):
     }]
     """
     drills = models.ManyToManyField(Drill, related_name='trainings')
-    notes = models.TextField(blank=True)
+    description = models.TextField(blank=True)
 
     def __str__(self):
         return f"Training on {self.date}"
@@ -88,7 +89,7 @@ class Training(models.Model):
         Fill the drills ManyToMany field based on the actions JSONField.
         """
 
-        drill_ids = [action['drill'] for action in self.actions if action['drill'] != 'custom']
+        drill_ids = [action['drill'] for action in self.actions if 'custom' not in action['drill']]
         drills = Drill.objects.filter(id__in=drill_ids)
         self.drills.set(drills)
     
@@ -99,5 +100,6 @@ class Training(models.Model):
         """
         if self.pk:  # Wird nur aufgerufen, wenn das Objekt bereits existiert
             self.fill_drills()
+            self.name = self.date.strftime("%Y-%m-%d")
 
         super().save(*args, **kwargs)

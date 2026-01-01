@@ -73,9 +73,7 @@ def update_drill(updated_drill:dict) -> None:
 
     return None
 
-def create_drill_list(
-    filter_dict: dict,
-) -> dict:
+def create_drill_list(filter_dict: dict) -> dict:
     '''
     Create a filtered and paginated drill lists with all information to render "pages/drill_list.html":
     '''
@@ -131,22 +129,36 @@ def create_training(new_training:dict) -> None:
     actions = []
     for action in new_training['actions']:
         actions.append({
-            'drill': action['id'] if 'custom' not in action['id'] else 'custom',
+            'drill': action['id'],
             'duration': action.get('duration', 10),
             'description': action.get('name') if 'custom' in action['id'] else None
         })
 
-    print(new_training['date'])
     # Training-Objekt erstellen
     training = Training.objects.create(
         date=datetime.strptime(new_training['date'], "%Y-%m-%d").date(),
         player_count=new_training['player_count'],
         duration=timedelta(minutes=sum([int(x) for x in new_training['duration']])),
         actions=actions,
-        notes=""
+        description=new_training['notes']
     )
 
     # Speichere das Training-Objekt
     training.save()
 
     return None
+
+def create_training_list() -> dict:
+    '''
+    Create a list of trainings with all information to render "pages/training_overview.html":
+    '''
+
+    # Daten abrufen
+    trainings = Training.objects.all()
+    trainings = trainings.order_by('-date')  # Sortieren nach Datum absteigend
+
+    trainings_json = serializers.serialize("json", trainings)
+
+    return {
+        'trainings': trainings_json,
+    }

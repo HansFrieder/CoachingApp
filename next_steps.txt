@@ -26,7 +26,8 @@ Trainingsplanung bauen:
         -> Wenn Drills gefiltert werden, erlischen die selected Drills, da Backend Operation (x)
     -> Wie kann ich die Informationen sehen? (x)
     -> Wie werden Traingseinheiten gespeichert?
-        -> HIER WEITERMACHEN
-        -> Submit Reihenfolge und Infos
-        -> Backend Handling
+        -> Submit Reihenfolge und Infos (x)
+        -> Backend Handling (x)
     -> Was passiert mit Custom Drills und Platzhaltern (x)
+    -> Training bearbeiten (HIER WEITERMACHEN)
+        -> beim aufrufen, sollten schon vorhandene Drills, in der Drill Liste schon selektiert sein

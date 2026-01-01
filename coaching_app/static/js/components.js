@@ -34,13 +34,13 @@ class CDList extends HTMLElement {
     async loadAndRender() {
         const res = await fetch(this.apiUrl);
         const data = await res.json();
-
+        
         this.render({
             data: JSON.parse(data[this.dataFrom]),
-            chartData: JSON.parse(data[this.chartData]) || [],
+            chartData: data?.[this.chartData] ? JSON.parse(data[this.chartData]) : [],
             filterBy: this.filterBy,
-            filter: JSON.parse(data[this.filterBy]),
-            color: JSON.parse(data[this.colorBy]),
+            filter: data?.[this.filterBy] ? JSON.parse(data[this.filterBy]) : [],
+            color: data?.[this.colorBy] ? JSON.parse(data[this.colorBy]) : [],
             apiUrl: this.apiUrl,
         });
     }
@@ -134,6 +134,7 @@ class CDList extends HTMLElement {
 
         // Erstelle Liste der Einträge
         const listContainer = this.querySelector("#cd-list-container");
+        console.log(data)
         data.forEach(d => {
             const item = document.createElement('cd-list-item');
             item.setAttribute('data-csrf', this.csrfToken);
@@ -141,7 +142,7 @@ class CDList extends HTMLElement {
             item.setAttribute('data-id', d.pk);
             item.setAttribute('data-name', d.fields.name);
             item.setAttribute('data-description', d.fields.description || '');
-            item.setAttribute('color', color?.[d.pk].color || '#FFFFFF');
+            item.setAttribute('color', color?.[d.pk]?.color ?? '#FFFFFF');
             item.setAttribute('isselectable', this.isSelectable.toString());
             item.setAttribute('has-skill-dist', this.hasSkillDist.toString());
             item.setAttribute('has-intensity', this.hasIntensity.toString());

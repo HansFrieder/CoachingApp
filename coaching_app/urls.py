@@ -34,4 +34,5 @@ urlpatterns = [
     path('drills/edit/', views.edit_drill, name='edit_drill'),  # Edit or delete Drill
     path('training/plan/', views.plan_training, name='plan_training'),  # Plan or edit Training
     path('api/drills/', views.api_drills, name='api_drills'),  # API for Drill Context
+    path('api/training/', views.api_training, name='api_training'),  # API for Training Context
 ]
