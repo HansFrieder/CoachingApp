@@ -5,7 +5,9 @@ from django.core.paginator import Paginator
 from django.forms.models import model_to_dict
 from .config import Config
 from .models import *
-from .functions import create_drill, create_drill_list, update_drill, create_training, create_training_list
+from .functions import (
+    create_drill, create_drill_list, update_drill, create_training, create_training_list, update_training
+)
 import json
 
 # globals
@@ -127,6 +129,24 @@ def training_overview(request):
                 'actions': json.loads(request.POST.get('actions')),
                 'notes': request.POST.get('notes')
             })
+        
+        # Training aktualisieren
+        elif request.POST.get('submit_action') == 'update':
+            update_training({
+                'training_id': request.POST.get('training_id'),
+                'date': request.POST.get('date'),
+                'player_count': request.POST.get('player_count'),
+                'duration': request.POST.getlist('duration'),
+                'actions': json.loads(request.POST.get('actions')),
+                'notes': request.POST.get('notes')
+            })
+
+        # Training abschließen (checked setzen)
+        elif request.POST.get('submit_action') == 'check':
+            training_id = request.POST.get('training_id')
+            training = Training.objects.get(id=training_id)
+            training.checked = True
+            training.save()
 
     return render(request, 'pages/training_overview.html')
 
@@ -221,13 +241,13 @@ def api_training(request):
     context = {}
 
     # Filter aufnehmen
-    # filter_dict = {
-    #     'date_from': request.GET.get('date_from', None),
-    #     'date_to': request.GET.get('date_to', None),
-    # }
+    filter_dict = {
+        'search': request.GET.get('search', None),
+        # 'date_to': request.GET.get('date_to', None),
+    }
 
     # Training Context holen
-    training_list_context = create_training_list() # filter_dict)
+    training_list_context = create_training_list(filter_dict)
     context.update(training_list_context)
-    print(context)
+
     return JsonResponse(context)

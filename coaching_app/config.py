@@ -60,6 +60,10 @@ class Config:
             2: "#FFD1C1",  # Pastellrot
             3: "#E6C7F7",  # Pastelllila
             4: "#FFF7B2",  # Pastellgelb
-            5: "#B2F7EF"   # Pastelltürkis
+            5: "#6B6B6B"   # Pastelltürkis
+            },
+            "finished_training": {
+                True: "#808080",
+                False: "#f68238"
             }
         }

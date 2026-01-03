@@ -12,6 +12,11 @@
 
     <form id="training-form" action="{% url 'training_overview' %}" method="post">
         {% csrf_token %}
+
+        <!-- Hidden field for training ID if editing an existing training -->
+        {% if training %}
+            <input type="hidden" name="training_id" value="{{ training.id }}">
+        {% endif %}
         
         <!-- Datum auswählen -->
         <div class="row mb-3">
@@ -97,7 +102,7 @@
                     rows="5" 
                     placeholder="Notizen zum Training"
                     required
-                >{% if training %}{{ training.notes }}{% else %}{{ '' }}{% endif %}</textarea>
+                >{% if training %}{{ training.description }}{% else %}{{ '' }}{% endif %}</textarea>
             </div>
             <div class="col-1"></div>
         </div>
@@ -125,6 +130,8 @@
 
 {% block scripts %}
 <script>
+    updateTotalDuration()
+
     // Sortable Component erstellen
     const sortable = new Sortable(document.getElementById('sortable'), {
         animation: 150,
