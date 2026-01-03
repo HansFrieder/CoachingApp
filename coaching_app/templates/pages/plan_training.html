@@ -10,13 +10,18 @@
         </div>
     </div>
 
-    <form action="{% url 'training_overview' %}" method="post">
+    <form id="training-form" action="{% url 'training_overview' %}" method="post">
         {% csrf_token %}
+
+        <!-- Hidden field for training ID if editing an existing training -->
+        {% if training %}
+            <input type="hidden" name="training_id" value="{{ training.id }}">
+        {% endif %}
         
         <!-- Datum auswählen -->
         <div class="row mb-3">
             <div class="col-1"></div>
-            <div class="col-10">
+            <div class="col-5">
                 <label for="date" class="form-label">Datum wählen</label>
                 <input
                     type="date"
@@ -24,6 +29,17 @@
                     id="date"
                     name="date"
                     value="{% if training %}{{ training.date|date:'Y-m-d' }}{% else %}{{ today|date:'Y-m-d' }}{% endif %}"
+                >
+            </div>
+            <div class="col-5">
+                <label for="player_count" class="form-label">Spieler*innen Anzahl</label>
+                <input
+                    type="number"
+                    class="form-control"
+                    id="player_count"
+                    name="player_count"
+                    min="1"
+                    value="{% if training %}{{ training.player_count }}{% else %}10{% endif %}"
                 >
             </div>
             <div class="col-1"></div>
@@ -50,9 +66,23 @@
         <!-- Drag and Drop Area für Planung -->
         <div class="row mb-3">
             <div class="col-1"></div>
-            <div class="col-10" id="sortable"></div>
+            <div class="col-10" id="sortable">
+                {% if training %}
+                    {% for action in training.actions %}
+                        <cd-list-item
+                            data-id="{{ action.drill }}"
+                            data-name="{{ action.name }}"
+                            data-duration="{{ action.duration }}"
+                            has-duration="true"
+                            has-delete-button="true"
+                        ></cd-list-item>
+                    {% endfor %}
+                {% endif %}
+            </div>
             <div class="col-1"></div>
         </div>
+
+        <!-- Anzeige Gesamtdauer -->
         <div class="row mb-3">
             <div class="col-1"></div>
             <div class="col-10 text-end">
@@ -61,14 +91,30 @@
             <div class="col-1"></div>
         </div>
 
-        <!-- Submit Training -->
+        <!-- Notizfeld -->
         <div class="row mb-3">
             <div class="col-1"></div>
             <div class="col-10">
+                <textarea 
+                    id="notes" 
+                    name="notes" 
+                    class="form-control" 
+                    rows="5" 
+                    placeholder="Notizen zum Training"
+                    required
+                >{% if training %}{{ training.description }}{% else %}{{ '' }}{% endif %}</textarea>
+            </div>
+            <div class="col-1"></div>
+        </div>
+
+        <!-- Submit Training -->
+        <div class="row mb-3">
+            <div class="col-1"></div>
+            <div class="col-10 d-flex">
                 <button 
                     type="submit" 
-                    class="btn btn-primary" 
-                    name="action" 
+                    class="btn btn-dark custom-nav-btn flex-grow-1" 
+                    name="submit_action"
                     value="{% if training %}update{% else %}create{% endif %}"
                 >{% if training %}Training aktualisieren{% else %}Training erstellen{% endif %}</button>
             </div>
@@ -84,6 +130,8 @@
 
 {% block scripts %}
 <script>
+    updateTotalDuration()
+
     // Sortable Component erstellen
     const sortable = new Sortable(document.getElementById('sortable'), {
         animation: 150,
@@ -107,7 +155,6 @@
         item.setAttribute('has-duration', 'true');
         item.setAttribute('has-delete-button', 'true');
         item.setAttribute('name-is-editable', 'true');
-        item.setAttribute('duration-placeholder', 'Dauer in Minuten');
         
         // Zum Sortable Container hinzufügen
         sortableContainer.appendChild(item);
@@ -115,6 +162,46 @@
         // Gesamtwert aktualisieren
         updateTotalDuration();
     }
+
+    // Event Listener für Form Submit
+    const trainingForm = document.getElementById('training-form');
+    trainingForm.addEventListener('submit', function(event) {
+
+        event.preventDefault(); // Verhindert das Standard-Submit-Verhalten
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        // Submit Action einlesen
+        const submitAction = form.querySelector('button[name="submit_action"]').value;
+
+        // Füge die Drill-Daten zum Formular hinzu
+        const actions = document.querySelectorAll('#sortable cd-list-item');
+        const actionData = Array.from(actions).map(item => ({
+            id: item.getAttribute('data-id'),
+            name: item.getAttribute('data-name'),
+            duration: item.getAttribute('data-duration')
+        }));
+
+        // Body erstellen
+        formData.append('submit_action', submitAction);
+        formData.append('actions', JSON.stringify(actionData));
+        
+        // Form händisch zum Server schicken
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(res => res.text())
+        .then(html => {
+            document.open();
+            document.write(html);
+            document.close();
+        });
+    });
 
     // Event Listener für Pop-up schließen
     document.addEventListener("popupClosed", function(event) {

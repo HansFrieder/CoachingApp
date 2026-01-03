@@ -1,5 +1,6 @@
 from django.core.paginator import Paginator
 from django.core import serializers
+from datetime import datetime, timedelta
 import json
 
 from .models import *
@@ -72,9 +73,7 @@ def update_drill(updated_drill:dict) -> None:
 
     return None
 
-def create_drill_list(
-    filter_dict: dict,
-) -> dict:
+def create_drill_list(filter_dict:dict) -> dict:
     '''
     Create a filtered and paginated drill lists with all information to render "pages/drill_list.html":
     '''
@@ -108,5 +107,109 @@ def create_drill_list(
         'drills': drills_json,
         # 'skills': skills,
         'skills': skills_json,
+        'stats': stats_json
+    }
+
+def create_training(new_training:dict) -> None:
+    """
+    Create a new training instance.
+
+    Args:
+        new_training (dict): A dictionary containing the training's details, including:
+            - date (str): The date of the training session.
+            - player_count (int): The number of players attending.
+            - duration (str): The duration of the training session.
+            - actions (list): A list of action dictionaries associated with the training.
+            - notes (str): Additional notes for the training session.
+    Returns:
+        None
+    """
+    
+    # Actions transformieren
+    actions = []
+    for action in new_training['actions']:
+        actions.append({
+            'drill': action['id'],
+            'duration': action.get('duration', 10),
+            'description': action.get('name') if 'custom' in action['id'] else None
+        })
+
+    # Training-Objekt erstellen
+    training = Training.objects.create(
+        date=datetime.strptime(new_training['date'], "%Y-%m-%d").date(),
+        player_count=new_training['player_count'],
+        duration=timedelta(minutes=sum([int(x) for x in new_training['duration']])),
+        actions=actions,
+        description=new_training['notes']
+    )
+
+    # Speichere das Training-Objekt
+    training.save()
+
+    return None
+
+def update_training(updated_training:dict) -> None:
+    """
+    Update an existing training instance.
+
+    Args:
+        updated_training (dict): A dictionary containing the updated details of the training.
+            - training_id (int): The ID of the training to update.
+            - date (str): The new date of the training session.
+            - player_count (int): The new number of players attending.
+            - duration (str): The new duration of the training session.
+            - actions (list): A list of action dictionaries associated with the training.
+            - notes (str): Additional notes for the training session.
+    Returns:
+        None
+    """
+
+    training_id = updated_training['training_id']
+    
+    # Hole das Training-Objekt
+    training = Training.objects.get(id=training_id)
+
+    # Actions transformieren
+    actions = []
+    for action in updated_training['actions']:
+        actions.append({
+            'drill': action['id'],
+            'duration': action.get('duration', 10),
+            'description': action.get('name') if 'custom' in action['id'] else None
+        })
+
+    training.date = datetime.strptime(updated_training['date'], "%Y-%m-%d").date()
+    training.player_count = updated_training['player_count']
+    training.duration = timedelta(minutes=sum([int(x) for x in updated_training['duration']]))
+    training.actions = actions
+    training.description = updated_training['notes']
+    
+    # Speichere das aktualisierte Training-Objekt
+    training.save()
+
+    return None
+
+def create_training_list(filter_dict:dict) -> dict:
+    '''
+    Create a list of trainings with all information to render "pages/training_overview.html":
+    '''
+
+    # Daten abrufen
+    trainings = Training.objects.all()
+    
+    # Filter anwenden
+    if filter_dict['search']:
+        trainings = trainings.filter(name__icontains=filter_dict['search'])
+
+    # sortieren und serialisieren
+    trainings = trainings.order_by('checked', '-date')  # Sortieren nach Datum absteigend
+    trainings_json = serializers.serialize("json", trainings)
+
+    # Stat Daten als json übergeben
+    stats = {training.id: training.stats for training in trainings}
+    stats_json = json.dumps(stats)
+
+    return {
+        'trainings': trainings_json,
         'stats': stats_json
     }

@@ -104,10 +104,10 @@
         <!-- Submit Drill -->
         <div class="row mb-3">
             <div class="col-1"></div>
-            <div class="col-10">
+            <div class="col-10 d-flex">
                 <button 
                     type="submit" 
-                    class="btn btn-primary" 
+                    class="btn btn-dark custom-nav-btn flex-grow-1" 
                     name="action" 
                     value="{% if drill %}update{% else %}create{% endif %}"
                 >{% if drill %}Drill aktualisieren{% else %}Drill erstellen{% endif %}</button>
@@ -115,9 +115,4 @@
             <div class="col-1"></div>
         </div>
     </form>
-{% endblock %}
-
-{% block scripts %}
-    <script>
-    </script>
 {% endblock %}

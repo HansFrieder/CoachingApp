@@ -19,6 +19,7 @@ class CDList extends HTMLElement {
         this.hasDifficulty = this.getAttribute('has-difficulty') === 'true';
         this.hasDuration = this.getAttribute('has-duration') === 'true';
         this.hasDeleteButton = this.getAttribute('has-delete-button') === 'true';
+        this.hasCheckbox = this.getAttribute('has-checkbox') === 'true';
         
         // Data Attribute
         this.dataFrom = this.getAttribute('cd-data');
@@ -34,13 +35,13 @@ class CDList extends HTMLElement {
     async loadAndRender() {
         const res = await fetch(this.apiUrl);
         const data = await res.json();
-
+        
         this.render({
             data: JSON.parse(data[this.dataFrom]),
-            chartData: JSON.parse(data[this.chartData]) || [],
+            chartData: data?.[this.chartData] ? JSON.parse(data[this.chartData]) : [],
             filterBy: this.filterBy,
-            filter: JSON.parse(data[this.filterBy]),
-            color: JSON.parse(data[this.colorBy]),
+            filter: data?.[this.filterBy] ? JSON.parse(data[this.filterBy]) : [],
+            color: data?.[this.colorBy] ? JSON.parse(data[this.colorBy]) : [],
             apiUrl: this.apiUrl,
         });
     }
@@ -128,26 +129,32 @@ class CDList extends HTMLElement {
             filterForm.setAttribute('action', apiUrl);
             filterForm.setAttribute('cd-filter-name', this.filterName);
             filterForm.setAttribute('cd-filter-by', this.filterBy);
-            filterForm.setAttribute('cd-filter-options', JSON.stringify(filter));
+            filterForm.setAttribute('cd-filter-options', JSON.stringify(filter)); // Optimierung: Direktes Übergeben des Filter-Arrays als JSON-String
             filterContainer.appendChild(filterForm);
         }
 
         // Erstelle Liste der Einträge
         const listContainer = this.querySelector("#cd-list-container");
+        console.log(data)
         data.forEach(d => {
             const item = document.createElement('cd-list-item');
             item.setAttribute('data-csrf', this.csrfToken);
-            item.setAttribute('data-edit', this.EditUrl);
+            item.setAttribute('data-edit', this.EditUrl || '');
             item.setAttribute('data-id', d.pk);
             item.setAttribute('data-name', d.fields.name);
             item.setAttribute('data-description', d.fields.description || '');
-            item.setAttribute('color', color?.[d.pk].color || '#FFFFFF');
+            if (this.hasDuration) {
+                item.setAttribute('data-duration', durationToMinutes(d.fields.duration.toString()) || '10');
+            }
+            item.setAttribute('color', color?.[d.pk]?.color ?? '#FFFFFF');
             item.setAttribute('isselectable', this.isSelectable.toString());
             item.setAttribute('has-skill-dist', this.hasSkillDist.toString());
             item.setAttribute('has-intensity', this.hasIntensity.toString());
             item.setAttribute('has-difficulty', this.hasDifficulty.toString());
             item.setAttribute('has-duration', this.hasDuration.toString());
             item.setAttribute('has-delete-button', this.hasDeleteButton.toString());
+            item.setAttribute('has-checkbox', this.hasCheckbox.toString());
+            item.setAttribute('checked', d.fields.checked?.toString() ?? 'false');
             listContainer.appendChild(item);
         });
 
@@ -160,6 +167,11 @@ class CDList extends HTMLElement {
             }
         }
         this.FilterAufrufen();
+
+        // Event auslösen, dass die Liste fertig initialisiert wurde
+        this.dispatchEvent(new CustomEvent(
+            'cdListLoaded',
+        ));
     }
 }
 customElements.define("cd-list", CDList);
@@ -227,12 +239,24 @@ class CDListItem extends HTMLElement {
         this.hasIntensity = this.getAttribute('has-intensity') === 'true'   || false;
         this.hasDifficulty = this.getAttribute('has-difficulty') === 'true' || false;
         this.hasDuration = this.getAttribute('has-duration') === 'true'   || false;
+        if (this.hasDuration) {
+            this.setAttribute('data-duration', this.getAttribute('data-duration') || '10');
+        }
+        this.hasCheckbox = this.getAttribute('has-checkbox') === 'true' || false;
+        this.checked = this.getAttribute('checked') === 'true' || false;
         this.hasDeleteButton = this.getAttribute('has-delete-button') === 'true' || false;
         this.nameIsEditable = this.getAttribute('name-is-editable') === 'true' || false;
 
         this.render();
 
         // Definiere Events
+        const nameInput = this.querySelector('input[name="name"]');
+        if (nameInput) {
+            nameInput.addEventListener('change', () => {
+                nameInput.setAttribute('data-name', nameInput.value);
+                nameInput.parentElement.parentElement.setAttribute('data-name', nameInput.value);
+            });
+        }
         const deleteButton = this.querySelector('button[name="delete"]');
         if (deleteButton) {
             deleteButton.addEventListener('click', () => {
@@ -247,16 +271,26 @@ class CDListItem extends HTMLElement {
         if (durationInput) {
             durationInput.addEventListener('change', () => {
                 document.dispatchEvent(
-                new CustomEvent("updateTotal")
+                    new CustomEvent("updateTotal")
                 );
+                durationInput.parentElement.parentElement.parentElement.setAttribute('data-duration', durationInput.value);
             });
         }
         if (this.isSelectable) {
             const nameDiv = this.querySelector('#item-container');
-            console.log(nameDiv);
             nameDiv.addEventListener('click', () => {
                 console.log("Item clicked:", this.itemId);
                 selectItem(nameDiv, this.color);
+            });
+        }
+        if (this.hasCheckbox) {
+            const checkboxInput = this.querySelector('input[name="select-checkbox"]');
+            checkboxInput.addEventListener('change', () => {
+                document.dispatchEvent(
+                    new CustomEvent("checkboxChanged", { 
+                        detail: { ItemId: this.itemId, Checked: checkboxInput.checked }
+                    })
+                );
             });
         }
     }
@@ -273,7 +307,7 @@ class CDListItem extends HTMLElement {
             const nameInput = document.createElement("Input");
             nameInput.type = "text";
             nameInput.name = "name";
-            nameInput.value = this.name;
+            nameInput.value = this.getAttribute('data-name') || this.name;
             nameInput.className = "col form-control form-control-sm d-flex align-items-center justify-content-start fw-bold";
             nameInput.style.minWidth = "0";
             container.appendChild(nameInput);
@@ -286,7 +320,7 @@ class CDListItem extends HTMLElement {
 
         // Charts und Buttons am Ende
         const endCol = document.createElement('div');
-        endCol.className = "col d-flex justify-content-end";
+        endCol.className = "col d-flex justify-content-end align-items-center";
 
         // Charts
         if (this.hasSkillDist) {
@@ -302,8 +336,8 @@ class CDListItem extends HTMLElement {
             const intensityCanvas = document.createElement('canvas');
             intensityCanvas.dataset.itemId = this.itemId;
             intensityCanvas.dataset.type = "intensity";
-            intensityCanvas.className = "chart-canvas me-1";
-            intensityCanvas.width = 40;
+            intensityCanvas.className = "chart-canvas";
+            intensityCanvas.width = 20;
             intensityCanvas.height = 40;
             endCol.appendChild(intensityCanvas);
         }
@@ -311,8 +345,8 @@ class CDListItem extends HTMLElement {
             const difficultyCanvas = document.createElement('canvas');
             difficultyCanvas.dataset.itemId = this.itemId;
             difficultyCanvas.dataset.type = "difficulty";
-            difficultyCanvas.className = "chart-canvas me-1";
-            difficultyCanvas.width = 40;
+            difficultyCanvas.className = "chart-canvas";
+            difficultyCanvas.width = 20;
             difficultyCanvas.height = 40;
             endCol.appendChild(difficultyCanvas);
         }
@@ -320,21 +354,21 @@ class CDListItem extends HTMLElement {
             const durationInput = document.createElement('input');
             durationInput.type = "number";
             durationInput.name = "duration";
-            durationInput.value = "10";
+            durationInput.value = this.getAttribute('data-duration') || "10";
             durationInput.min = "1";
-            durationInput.className = "form-control form-control-sm me-1";
+            durationInput.className = "form-control form-control-sm";
             durationInput.style.width = "60px";
             endCol.appendChild(durationInput);
         }
         if (this.editUrl !== '') {
             const editForm = document.createElement('form');
-            editForm.className = "d-flex flex-row align-items-stretch m-0";
+            editForm.className = "d-flex flex-row align-items-stretch m-0 p-0 mx-1";
             editForm.action = this.editUrl;
             editForm.method = "post";
             editForm.innerHTML = `
             <input type="hidden" name="csrfmiddlewaretoken" value="${this.csrfToken}">
             <button
-            class="btn btn-sm flex-fill mx-1"
+            class="btn btn-sm flex-fill"
             type="submit"
             name="update"
             value="${this.itemId}"
@@ -346,7 +380,7 @@ class CDListItem extends HTMLElement {
         }
         if (this.hasDeleteButton) {
             const deleteButton = document.createElement('button');
-            deleteButton.className = "btn btn-sm flex-fill ms-1";
+            deleteButton.className = "btn btn-sm flex-row";
             deleteButton.type = "button";
             deleteButton.name = "delete";
             deleteButton.style = "background-color: white; border-width:2px; border-color:red;";
@@ -357,7 +391,7 @@ class CDListItem extends HTMLElement {
             
             // Button
             const descButton = document.createElement('button');
-            descButton.className = "btn btn-sm flex-fill mx-1";
+            descButton.className = "btn btn-sm flex-row";
             descButton.type = "button";
             descButton.dataset.bsToggle = "collapse";
             descButton.dataset.bsTarget = `#desc-${this.itemId}`;
@@ -366,6 +400,17 @@ class CDListItem extends HTMLElement {
             descButton.style = "background-color: white; border-width:2px; border-color:black;";
             descButton.innerHTML = "&#9660;";
             endCol.appendChild(descButton);
+        }
+        if (this.hasCheckbox) {
+            const checkboxInput = document.createElement('input');
+            checkboxInput.type = "checkbox";
+            checkboxInput.name = "select-checkbox";
+            checkboxInput.className = "form-check-input ms-2 border-dark";
+            checkboxInput.checked = this.checked;
+            if (this.checked) {
+                checkboxInput.disabled = true;
+            }
+            endCol.appendChild(checkboxInput);
         }
         container.appendChild(endCol);
 

@@ -26,11 +26,6 @@
         </div>
 
         <!-- Unter dem Strich -->
-        <!-- <drill-list action="{% url 'api_drills' %}"
-            isselectable="false"
-            update-url-template="{% url 'edit_drill' %}"
-            data-csrf="{{ csrf_token }}">
-        </drill-list> -->
         <cd-list 
             cd-csrf="{{ csrf_token }}"
             cd-api="{% url 'api_drills' %}" 
@@ -47,7 +42,4 @@
         </cd-list>
             
     </div>
-{% endblock %}
-
-{% block scripts %}
 {% endblock %}

@@ -11,6 +11,9 @@ Drill-Liste:
 --> Stats in Liste beschriften
     -> Beispiel Sleeper App
 
+Drill erstellen/aktualisieren:
+    -> Skill Auswahl schöner mit Farben gestalten
+
 Trainingsplanung bauen:
 --> Fragestellungen: 
     -> Wie funktioniert die Drill-Auswahl?
@@ -26,7 +29,15 @@ Trainingsplanung bauen:
         -> Wenn Drills gefiltert werden, erlischen die selected Drills, da Backend Operation (x)
     -> Wie kann ich die Informationen sehen? (x)
     -> Wie werden Traingseinheiten gespeichert?
-        -> HIER WEITERMACHEN
-        -> Submit Reihenfolge und Infos
-        -> Backend Handling
+        -> Submit Reihenfolge und Infos (x)
+        -> Backend Handling (x)
     -> Was passiert mit Custom Drills und Platzhaltern (x)
+    -> Training bearbeiten
+        -> beim aufrufen, sollten schon vorhandene Drills, in der Drill Liste schon selektiert sein (x)
+        -> Skill Dist, Intensity, Schwierigkeit bei Training (x)
+        -> Training abschließen, andere Farbe, bearbeiten nicht mehr möglich (x)
+
+-> HIER WEITERMACHEN
+-> Drill Liste in Beschreibung
+-> Legenden über Liste
+

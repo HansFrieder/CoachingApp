@@ -12,7 +12,7 @@
             </div>
         </div>
 
-    <!-- Button zum Erstellen eines neuen Drills -->
+        <!-- Button zum Erstellen eines neuen Drills -->
         <div class="row pb-4 border-bottom border-dark border-1">
             <div class="col-1 col-md-3"></div>
             <div class="col-10 col-md-6 d-flex justify-content-center">
@@ -25,6 +25,53 @@
         </div>
 
         <!-- Unter dem Strich -->
+        <cd-list 
+            cd-csrf="{{ csrf_token }}"
+            cd-api="{% url 'api_training' %}" 
+            cd-edit="{% url 'plan_training' %}"
+            isselectable="false"
+            cd-data="trainings"
+            cd-chart-data="stats"
+            cd-filter-name="true"
+            cd-color-by="stats"
+            has-skill-dist="true"
+            has-intensity="true"
+            has-difficulty="true"
+            has-checkbox="true">
+        </cd-list>
 
     </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    
+    // Wenn Check-Box gesetzt wird, wird das Training als abgeschlossen markiert
+    document.addEventListener("checkboxChanged", function(event) {
+        const detail = event.detail;
+        const itemId = detail.ItemId;
+        const checked = detail.Checked;
+        const action = "{% url 'training_overview' %}";
+
+        if (checked) {
+            fetch(action, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: new URLSearchParams({
+                    'submit_action': 'check',
+                    'training_id': itemId
+                })
+            })
+            .then(res => res.text())
+            .then(html => {
+                document.open();
+                document.write(html);
+                document.close();
+            });
+        }
+    });
+    
+</script>
 {% endblock %}
