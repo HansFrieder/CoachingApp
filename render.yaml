@@ -10,7 +10,7 @@ services:
     name: coachingapp
     runtime: python
     buildCommand: './build.sh'
-    startCommand: 'python -m gunicorn coachingapp.asgi:application -k uvicorn.workers.UvicornWorker' 
+    startCommand: 'python -m gunicorn coaching_app.wsgi:application' 
     envVars:
       - key: DATABASE_URL
         fromDatabase:
