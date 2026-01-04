@@ -16,10 +16,6 @@ venv/
 ENV/
 env/
 
-# Migrations (optional, wenn du sie nicht versionieren willst)
-*/migrations/
-!*/migrations/__init__.py
-
 # VS Code, PyCharm, etc.
 .vscode/
 .idea/
