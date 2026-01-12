@@ -33,6 +33,9 @@
             <form class="d-flex align-items-center m-0" method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
                 <span class="navbar-text text-light">{{ user.username }}</span>
+                {% if user.is_staff %}
+                <a class="navbar-toggler text-light text-decoration-none" href="{% url 'admin:index' %}">Admin</a>
+                {% endif %}
                 <button type="submit" class="navbar-toggler text-light">Logout</button>
             </form>
             {% endif %}
