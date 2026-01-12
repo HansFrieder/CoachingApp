@@ -19,3 +19,6 @@ env/
 # VS Code, PyCharm, etc.
 .vscode/
 .idea/
+
+# alle Dateien mit dem Muster yyyy-mm-dd.json ignorieren
+????-??-??.json
