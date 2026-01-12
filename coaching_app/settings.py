@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-krwm37x)88_^63r&z41brpxqb$wzr3c93%g4+y8=e)j=^3!2ls'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['coachingapp-budu.onrender.com','coachingapp-ls81.onrender.com', 'localhost', '127.0.0.1']
 
