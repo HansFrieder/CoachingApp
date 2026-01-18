@@ -135,6 +135,9 @@
     // Sortable Component erstellen
     const sortable = new Sortable(document.getElementById('sortable'), {
         animation: 150,
+        touchStartThreshold: 5,
+        forceFallback: false,
+        fallbackTolerance: 5,
         onEnd: function () {
         const order = [...document.querySelectorAll('#sortable li')]
             .map(li => li.dataset.id); // neue Reihenfolge

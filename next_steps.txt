@@ -1,43 +1,22 @@
 NEXT STEPS:
 
-Drill-Liste:
---> Pagination funktionsfähig machen (x)
-    -> Scrollsby einfügen (x)
-    -> Seiten-Navigation schöner machen (x)
---> Filter und Suchfunktion einbauen (vielleicht eine sinnvolle Sortierung überlegen) (x)
---> Accordion für Drill Informationen bauen (x)
-    -> Statistiken einbauen
-    -> Accordion designen
---> Stats in Liste beschriften
-    -> Beispiel Sleeper App
+List-Item:
+- Beschreibungen detaillieren
+    - bei Drills, Skills mit Farben (x)
+    - bei Training, Drills als Liste (x)
+    - Stats einbauen (x)
+- Legende einbauen
 
-Drill erstellen/aktualisieren:
-    -> Skill Auswahl schöner mit Farben gestalten
+Training planen:
+- Drag and Drop auf Mobile Device fixen (?)
 
-Trainingsplanung bauen:
---> Fragestellungen: 
-    -> Wie funktioniert die Drill-Auswahl?
-        -> Pop-Up Liste, bei der die Drills selektiert werden können (x)
-        -> Drills sollen automatisch in der Trainingsplanungsansicht angezeigt werden, wenn sie selected sind
-        -> Default Min (bspw 10) lassen sich dann anschließend in der Trainingsübersicht anpassen
-        -> Es kann jederzeit zwischen Drill-Auswahl und Training-Planen hin und her gewechselt werden (x)
-        -> Funktionsweise:
-            Selektierte Drills werden zusammen mit custom Slots unten angezeigt und können per Drag und Drop verschoben werden. (x)
-        -> Wird ein Objekt aus der Drag and Drop Liste entfernt, muss es auch in der Drill-Liste wieder als deselektiert erscheinen (x)
-        -> Neue List Komponente mit Trainingsplanugn verknüpfen (x)
-        -> Custom Names ändern (x) -> funktionieren noch nicht im Drag and Drop
-        -> Wenn Drills gefiltert werden, erlischen die selected Drills, da Backend Operation (x)
-    -> Wie kann ich die Informationen sehen? (x)
-    -> Wie werden Traingseinheiten gespeichert?
-        -> Submit Reihenfolge und Infos (x)
-        -> Backend Handling (x)
-    -> Was passiert mit Custom Drills und Platzhaltern (x)
-    -> Training bearbeiten
-        -> beim aufrufen, sollten schon vorhandene Drills, in der Drill Liste schon selektiert sein (x)
-        -> Skill Dist, Intensity, Schwierigkeit bei Training (x)
-        -> Training abschließen, andere Farbe, bearbeiten nicht mehr möglich (x)
-
--> HIER WEITERMACHEN
--> Drill Liste in Beschreibung
--> Legenden über Liste
+Training-Report:
+- Zeitreihen
+    - Skillsverteilung (x)
+    - Intensität (x)
+    - Schwierigkeit (x)
+    - Spieleranzahl (x)
+    - Auf Datumin X-Achse umstellen
+- Kuchendiagramm
+    - Skillsverteilung mit Zeitraumfilter (letzte Woche, letzter Monat, ...)
 

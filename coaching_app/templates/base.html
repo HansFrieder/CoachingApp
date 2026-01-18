@@ -26,8 +26,8 @@
         <nav class="navbar bg-dark container-fluid p-2 align-items-center">
             
             <!-- Logo und Link zur Hauptseite -->
-            <a class="navbar-brand text-light" href="{% url 'mainpage' %}">Coaching App</a>
             {% if user.is_authenticated %}
+            <a class="navbar-brand text-light" href="{% url 'mainpage' %}">Coaching App</a>
             
             <!-- User Information und Logout -->
             <form class="d-flex align-items-center m-0" method="post" action="{% url 'logout' %}">
@@ -38,6 +38,10 @@
                 {% endif %}
                 <button type="submit" class="navbar-toggler text-light">Logout</button>
             </form>
+            
+            {% else %}
+            <a class="navbar-brand text-light" href="{% url 'login' %}">Coaching App</a>
+
             {% endif %}
         </nav>
         {% endif %}
@@ -57,7 +61,7 @@
 
     <!-- Copyright Section -->
     <footer class="text-center p-3 mt-5">
-        <p>&copy; 2025 Coaching App. All rights reserved.</p>
+        <p>&copy; 2026 Coaching App. All rights reserved. V1.0.1</p>
     </footer>
     
     <script src="{% static 'js/scripts.js' %}"></script>

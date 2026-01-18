@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-krwm37x)88_^63r&z41brpxqb$wzr3c93%g4+y8=e)j=^3!2ls'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['coachingapp-budu.onrender.com','coachingapp-ls81.onrender.com', 'localhost', '127.0.0.1']
 
@@ -80,16 +80,11 @@ WSGI_APPLICATION = 'coaching_app.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# DATABASES = { # sqlite3 database configuration (development)
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-DATABASES = { # postgresql database configuration (production)
+DATABASES = { 
+    # Normalerweise wird DATABASE_URL aus den Umgebungsvariablen gelesen
+    
+    # Falls diese nicht existiert, wird eine SQLite-Datenbank im BASE_DIR als Fallback verwendet
     'default': dj_database_url.config(
-        # Replace this value with your local database's connection string.
         default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
         conn_max_age=600
     )

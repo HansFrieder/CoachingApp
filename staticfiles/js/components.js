@@ -6,6 +6,17 @@ class CDList extends HTMLElement {
     // Das hier passiert, wenn das Element in das DOM eingefügt wird (Initialisierung)
     async connectedCallback() {
         
+        // Zeige Ladekreis
+        this.innerHTML = `
+            <div class="row">
+                <div class="col mt-2" id="cd-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Laden...</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
         // Basis Attribute
         this.csrfToken = this.getAttribute('cd-csrf');
         this.apiUrl = this.getAttribute('cd-api');

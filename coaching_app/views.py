@@ -195,7 +195,40 @@ def training_report(request):
     """
     Render the training report page.
     """
-    return render(request, 'pages/training_report.html')
+
+    # Trainings aus DB holen
+    trainings = Training.objects.filter(checked=True).order_by('-date')
+
+    # Zeitreihen
+    time_series = {
+        "labels": [training.date.strftime("%Y-%m-%d") for training in trainings],
+        "skills": {
+            "data": {level[1]: [] for level in config.model_choices['skill_levels'][2]},
+            "colors": {
+                level[1]: config.colors["skills"]["strong"].get(level[0], "#FFFFFF") 
+                for level in config.model_choices['skill_levels'][2]
+            }
+        },
+        "intensity": [training.stats["intensity"] for training in trainings],
+        "difficulty": [training.stats["difficulty"] for training in trainings],
+        "player_count": [training.player_count for training in trainings],
+    }
+
+    # Anteile pro Skill errechnen
+    for training in trainings:
+        for idx, share in enumerate(training.stats["level2_distr"]):
+            time_series["skills"]["data"][config.model_choices['skill_levels'][2][idx][1]].append(share)
+
+    
+
+    # Kuchendiagramme
+
+    # Daten in Json umwandeln
+    context = {
+        "time_series": json.dumps(time_series)
+    }
+
+    return render(request, 'pages/training_report.html', context=context)
 
 @login_required(login_url='login')
 def roster(request):    

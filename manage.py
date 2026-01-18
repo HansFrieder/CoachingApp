@@ -17,6 +17,13 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
+def save_all_models():
+    """Utility function to save all models in the application."""
+    from coaching_app.models import Drill, Training, Skill  # Import your models here
+
+    for model in [Drill, Training, Skill]:
+        for instance in model.objects.all():
+            instance.save()
 
 if __name__ == '__main__':
     main()

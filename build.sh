@@ -10,3 +10,6 @@ python manage.py collectstatic --no-input
 
 # Apply any outstanding database migrations
 python manage.py migrate
+
+# Save all models to ensure data integrity
+# python -c "from manage import save_all_models; save_all_models()"

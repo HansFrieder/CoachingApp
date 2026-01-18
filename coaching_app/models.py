@@ -45,7 +45,7 @@ class Drill(models.Model):
 
         # Dict für Json Feld
         self.stats = {
-            "color": config.colors["skills"].get(level2_main[0][0], "#FFFFFF"), # Color
+            "color": config.colors["skills"]["soft"].get(level2_main[0][0], "#FFFFFF"), # Color
             "level2_distr": list(level2_dist.values()), # Verteilung Level 2 als Liste ("Offense", "Defense", etc.)
             "intensity": self.intensity, # Intensität
             "difficulty": self.difficulty, # Schwierigkeit
@@ -148,6 +148,11 @@ class Training(models.Model):
             # Intensität und Schwierigkeit mitteln
             intensity += action_stats_dict["intensity"] if action_stats_dict["intensity"] is not None else 0
             difficulty += action_stats_dict["difficulty"] if action_stats_dict["difficulty"] is not None else 0
+
+        # Normalisieren
+        total_dist = sum(level2_dist)
+        if total_dist > 0:
+            level2_dist = [level2_dist[i] / total_dist for i in range(len(level2_dist))]
 
         # Dict für Json Feld
         self.stats = {

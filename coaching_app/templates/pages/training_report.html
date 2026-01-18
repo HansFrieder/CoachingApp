@@ -9,7 +9,125 @@
                 <h2 class="text-uppercase fw-bold">Training Report</h2>
             </div>
         </div>
+
+        <div class="row mb-4 border-bottom border-dark border-1"></div>
         
-        <p class="fst-italic text-center">in Entwicklung</p>
+        <div class="row mb-3">
+            <div class="col-1"></div>
+            <div class="col-10 text-center">
+                <h3>Zeitreihen</h3>
+                <p>Hier können die Trainings über die Zeit analysiert werden.</p><br>
+                <div class="row">
+                    <div class="row">
+                        <h5>Skill-Levels</h5>
+                        <p>Diese Grafik zeigt an, welchen Anteil, die verschiedenen Skill-Levels im Training einnehmen.</p>
+                    </div>
+                    <canvas id="skills" class="time-series" width="400" height="200"></canvas> 
+                </div><br>
+                <div class="row">
+                    <div class="row">
+                        <h5>Intensität</h5>
+                        <p>Diese Grafik zeigt an, wie intensiv die Trainings im Zeitverlauf waren.</p>
+                    </div>
+                    <canvas id="intensity" class="time-series" width="400" height="200"></canvas>
+                </div><br>
+                <div class="row">
+                    <div class="row">
+                        <h5>Schwierigkeitsgrad</h5>
+                        <p>Diese Grafik zeigt an, wie schwierig die Trainings im Zeitverlauf waren.</p>
+                    </div>
+                    <canvas id="difficulty" class="time-series" width="400" height="200"></canvas>
+                </div><br>
+                <div class="row">
+                    <div class="row">
+                        <h5>Trainingsbeteiligung</h5>
+                        <p>Diese Grafik zeigt an, wie viele Spieler*Innen an den Trainings teilgenommen haben.</p>
+                    </div>
+                    <canvas id="player_count" class="time-series" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-1"></div>
+        </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        
+        // Zeitreihen-Charts
+        time_series = {{ time_series|safe }};
+
+        const resizeAndCreateTimeSeries = () => {
+            canvases = document.querySelectorAll('.time-series');
+            canvases.forEach(element => {
+                
+                // Größe anpassen
+                element.width = element.parentElement.offsetWidth;
+                const ctx = element.getContext('2d');
+                labels = time_series.labels;
+                console.log(time_series.skills.colors);
+
+                // Chart erstellen
+                if (element.id === 'skills') {
+                    const data = {
+                        labels: labels,
+                        datasets: []
+                    };
+                    
+                    // Iteriere über alle Skills (Offense, Defense, etc.)
+                    Object.keys(time_series.skills.data).forEach(skillName => {
+                        data.datasets.push({
+                            label: skillName,
+                            data: time_series.skills.data[skillName],
+                            borderColor: time_series.skills.colors[skillName],
+                        });
+                    });
+                    
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: data,
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    const data = {
+                        labels: labels,
+                        datasets: [{
+                            data: time_series[element.id],
+                            borderColor: '#f68238',
+                        }]
+                    };
+                    
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: data,
+                        options: {
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        };
+
+        // Beim DOM-Laden
+        document.addEventListener('DOMContentLoaded', resizeAndCreateTimeSeries);
+        
+        // Beim Resize
+        window.addEventListener('resize', resizeAndCreateTimeSeries);
+
+    </script>
 {% endblock %}

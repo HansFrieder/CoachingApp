@@ -38,29 +38,38 @@ class Config:
             },
             'drill_scales': {
                 'intensity': [
-                    (1, "Leicht"),
-                    (2, "Mittel"),
-                    (3, "Intensiv"),
-                    (4, "Sehr intensiv"),
-                    (5, "Extrem intensiv")
+                    (1, "nicht intensiv"),
+                    (2, "weniger intensiv"),
+                    (3, "intensiv"),
+                    (4, "sehr intensiv"),
+                    (5, "extrem intensiv")
                 ],
                 'difficulty': [
-                    (1, "Einfach"),
-                    (2, "Mittel"),
-                    (3, "Schwierig"),
-                    (4, "Sehr schwierig"),
-                    (5, "Extrem schwierig")
+                    (1, "sehr einfach"),
+                    (2, "eher einfach"),
+                    (3, "schwierig"),
+                    (4, "sehr schwierig"),
+                    (5, "extrem schwierig")
                 ]
             }
         }
 
         self.colors = {
             "skills": {
-            1: "#A7D8F5",  # Pastellblau
-            2: "#FFD1C1",  # Pastellrot
-            3: "#E6C7F7",  # Pastelllila
-            4: "#FFF7B2",  # Pastellgelb
-            5: "#6B6B6B"   # Pastelltürkis
+                "soft": {
+                    1: "#A7D8F5",  # Pastellblau
+                    2: "#FFD1C1",  # Pastellrot
+                    3: "#E6C7F7",  # Pastelllila
+                    4: "#FFF7B2",  # Pastellgelb
+                    5: "#6B6B6B"   # Pastellgrau
+                },
+                "strong": {
+                    1: "#108BDD",  
+                    2: "#FC4C24",
+                    3: "#E86BF8",
+                    4: "#F5D311",
+                    5: "#6B6B6B"
+                }
             },
             "finished_training": {
                 True: "#808080",
