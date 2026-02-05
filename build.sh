@@ -1,15 +1,28 @@
-#!/usr/bin/env bash
-# Exit on error
-set -o errexit
+#!/bin/bash
+set -e  # Script bricht bei Fehler sofort ab
+echo "==== Starting build for CoachingApp ===="
 
-# Modify this line as needed for your package manager (pip, poetry, etc.)
+# Aktivieren venv
+echo "Activating virtual environment..."
+source ./venv/bin/activate
+
+# Abhängigkeiten installieren
+echo "Installing requirements..."
+pip install --upgrade pip
 pip install -r requirements.txt
 
-# Convert static asset files
-python manage.py collectstatic --no-input
+# Staticfiles sammeln
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
 
-# Apply any outstanding database migrations
+# Datenbank migrieren
+echo "Running migrations..."
 python manage.py migrate
 
-# Save all models to ensure data integrity
-# python -c "from manage import save_all_models; save_all_models()"
+# Gunicorn systemd Service neu starten
+echo "Restarting Gunicorn service..."
+sudo systemctl daemon-reload
+sudo systemctl restart coachingapp
+sudo systemctl status coachingapp --no-pager
+
+echo "==== Build complete! App should be live. ===="
