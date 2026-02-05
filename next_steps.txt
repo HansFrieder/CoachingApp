@@ -3,8 +3,9 @@ NEXT STEPS:
 List-Item:
 - Beschreibungen detaillieren
     - bei Drills, Skills mit Farben (x)
+    - Links bei Drills einbauen ()
     - bei Training, Drills als Liste (x)
-    - Stats einbauen (x)
+    - Stats einbauen () -> auch bei Training einbinden
 - Legende einbauen
 
 Training planen:

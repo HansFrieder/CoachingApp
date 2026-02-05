@@ -5,6 +5,8 @@ import json
 
 from .models import *
 
+# DRILL HANDLERS
+
 def create_drill(new_drill:dict) -> None:
     """
     Create a new drill instance.
@@ -78,6 +80,11 @@ def create_drill_description_html(drill:Drill) -> str:
     Create the HTML description for a drill.
     '''
 
+    # Stats berechnen und neu laden, wenn nicht vorhanden
+    if not drill.stats:
+        drill.save()
+        drill = Drill.objects.get(id=drill.id)
+
     html = "<br>"
     
     # Bechreibung
@@ -141,6 +148,8 @@ def create_drill_list(filter_dict:dict) -> dict:
         'skills': skills_json,
         'stats': stats_json
     }
+
+# TRAINING HANDLERS
 
 def create_training(new_training:dict) -> None:
     """
@@ -226,6 +235,11 @@ def create_training_description_html(training:Training) -> str:
     Create the HTML description for a training.
     '''
 
+    # Stats berechnen und neu laden, wenn nicht vorhanden
+    if not training.stats:
+        training.save()
+        training = Training.objects.get(id=training.id)
+
     html = "<br>"
     
     # Actions
@@ -250,7 +264,6 @@ def create_training_description_html(training:Training) -> str:
         html += "<div style='color: orange; font-weight: bold;'>&#9680 Training noch nicht abgeschlossen</div>"
 
     return html
-
 
 def create_training_list(filter_dict:dict) -> dict:
     '''
