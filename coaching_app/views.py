@@ -13,7 +13,7 @@ import json
 # globals
 config = Config()
 
-# Render Views
+# Sites
 @login_required(login_url='login')
 def mainpage(request):
     """
@@ -36,7 +36,6 @@ def drills(request):
     """
     Render the drills page.
     """
-    context = {}
 
     # Handle new drill creation
     if request.method == 'POST':
@@ -62,61 +61,13 @@ def drills(request):
                 'difficulty': request.POST.get('difficulty')
             })
 
-    # Filter aufnehmen
-    filter_dict = {
-        'search': request.GET.get('search', None),
-        'skills': request.GET.get('skills', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
-        # 'page': request.GET.get('page', 1)
-    }
-
-    # Drill Context holen
-    drill_list_context = create_drill_list(filter_dict)
-    context.update(drill_list_context)
-
-    return render(request, 'pages/drills.html', context=context)
-
-@login_required(login_url='login') 
-def edit_drill(request):
-    """
-    Handle update, deleting or creation of drills.
-    """
-
-    # POST wird bei Update oder Delete aufgerufen
-    if request.method == 'POST':
-
-        # Update Drill
-        if request.POST.get('update'):
-            drill_id = request.POST.get('update')
-            drill = Drill.objects.get(id=drill_id)
-            skills = Skill.objects.all()
-    
-            return render(request, 'pages/edit_drill.html', context={
-                'skills': skills,
-                'drill': drill
-            })
-        
-        # Delete Drill
-        elif request.POST.get('delete'):
-            drill_id = request.POST.get('delete')
-            drill = Drill.objects.get(id=drill_id)
-            drill.delete()
-
-            return redirect('drills')
-    
-    # GET wird bei aufgerufen, wenn man einen neuen Drill erstellen will
-    if request.method == 'GET':
-        skills = Skill.objects.all()
-
-        return render(request, 'pages/edit_drill.html', context={
-            'skills': skills,
-        })
+    return render(request, 'pages/drills.html')
 
 @login_required(login_url='login')
 def training_overview(request):
     """
     Render the training page.
     """
-    context = {}
 
     if request.method == 'POST':
 
@@ -149,46 +100,6 @@ def training_overview(request):
             training.save()
 
     return render(request, 'pages/training_overview.html')
-
-@login_required(login_url='login')
-def plan_training(request):
-    """
-    Render the plan training page.
-    """
-    # POST wird bei Update oder Delete aufgerufen
-    if request.method == 'POST':
-
-        # Update Drill
-        if request.POST.get('update'):
-            training_id = request.POST.get('update')
-            training = Training.objects.get(id=training_id)
-            training = model_to_dict(training)
-
-            # Namen zuweisen
-            for action in training["actions"]:
-                drill_id = action["drill"]
-                name = Drill.objects.get(pk=drill_id).name if "custom" not in action["drill"] else action["description"]
-                action["name"] = name
-    
-            return render(request, 'pages/plan_training.html', context={
-                'training': training,
-            })
-        
-        # Delete Drill
-        elif request.POST.get('delete'):
-            training_id = request.POST.get('delete')
-            training = Training.objects.get(id=training_id)
-            training_id.delete()
-
-            return redirect('training_overview')
-    
-    # GET wird bei aufgerufen, wenn man einen neuen Drill erstellen will
-    if request.method == 'GET':
-        drills = Drill.objects.all()
-
-        return render(request, 'pages/plan_training.html', context={
-            'drills': drills,
-        })
 
 @login_required(login_url='login')
 def training_report(request):   
@@ -243,6 +154,83 @@ def standings(request):
     Render the standings page.
     """
     return render(request, 'pages/standings.html')
+
+# Edit Pages
+@login_required(login_url='login') 
+def edit_drill(request):
+    """
+    Handle update, deleting or creation of drills.
+    """
+
+    # POST wird bei Update oder Delete aufgerufen
+    if request.method == 'POST':
+
+        # Update Drill
+        if request.POST.get('update'):
+            drill_id = request.POST.get('update')
+            drill = Drill.objects.get(id=drill_id)
+            skills = Skill.objects.all()
+    
+            return render(request, 'pages/edit_drill.html', context={
+                'skills': skills,
+                'drill': drill
+            })
+        
+        # Delete Drill
+        elif request.POST.get('delete'):
+            drill_id = request.POST.get('delete')
+            drill = Drill.objects.get(id=drill_id)
+            drill.delete()
+
+            return redirect('drills')
+    
+    # GET wird bei aufgerufen, wenn man einen neuen Drill erstellen will
+    if request.method == 'GET':
+        skills = Skill.objects.all()
+
+        return render(request, 'pages/edit_drill.html', context={
+            'skills': skills,
+        })
+
+@login_required(login_url='login')
+def plan_training(request):
+    """
+    Render the plan training page.
+    """
+    # POST wird bei Update oder Delete aufgerufen
+    if request.method == 'POST':
+
+        # Update Drill
+        if request.POST.get('update'):
+            training_id = request.POST.get('update')
+            training = Training.objects.get(id=training_id)
+            training = model_to_dict(training)
+
+            # Namen zuweisen
+            for action in training["actions"]:
+                drill_id = action["drill"]
+                name = Drill.objects.get(pk=drill_id).name if "custom" not in action["drill"] else action["description"]
+                action["name"] = name
+    
+            return render(request, 'pages/plan_training.html', context={
+                'training': training,
+            })
+        
+        # Delete Drill
+        elif request.POST.get('delete'):
+            training_id = request.POST.get('delete')
+            training = Training.objects.get(id=training_id)
+            training_id.delete()
+
+            return redirect('training_overview')
+    
+    # GET wird bei aufgerufen, wenn man einen neuen Drill erstellen will
+    if request.method == 'GET':
+        drills = Drill.objects.all()
+
+        return render(request, 'pages/plan_training.html', context={
+            'drills': drills,
+        })
 
 # APIs
 @login_required(login_url='login')

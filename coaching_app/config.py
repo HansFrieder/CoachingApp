@@ -33,8 +33,19 @@ class Config:
 
         self.model_choices = {
             'skill_levels': {
-                1: [(1, "Basics"), (2, "Technik"), (3, "Taktik"), (4, "Weitere")],
-                2: [(1, "Offense"), (2, "Defense"), (3, "Transition"), (4, "Fitness"), (5, "Weitere")]
+                1: [
+                    (1, "Basics"), 
+                    (2, "Technik"), 
+                    (3, "Taktik"), 
+                    (4, "Weitere")
+                ],
+                2: [
+                    (1, "Offense"), 
+                    (2, "Defense"), 
+                    (3, "Transition"), 
+                    (4, "Fitness"), 
+                    (5, "Weitere")
+                ]
             },
             'drill_scales': {
                 'intensity': [
