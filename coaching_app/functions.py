@@ -5,6 +5,18 @@ import json
 
 from .models import *
 
+# TECHNICAL HELPERS
+def measure_context_size(context:dict) -> int:
+    '''
+    Measure the size of a context dictionary in bytes.
+    '''
+
+    size = len(json.dumps(context).encode('utf-8'))
+    size_in_kb = size / 1024
+    print(f"Context size: {size} bytes ({size_in_kb:.2f} KB)")
+
+    return size_in_kb
+
 # DRILL HANDLERS
 
 def create_drill(new_drill:dict) -> None:
@@ -75,40 +87,40 @@ def update_drill(updated_drill:dict) -> None:
 
     return None
 
-def create_drill_description_html(drill:Drill) -> str:
-    '''
-    Create the HTML description for a drill.
-    '''
+# def create_drill_description_html(drill:Drill) -> str:
+#     '''
+#     Create the HTML description for a drill.
+#     '''
 
-    # Stats berechnen und neu laden, wenn nicht vorhanden
-    if not drill.stats:
-        drill.save()
-        drill = Drill.objects.get(id=drill.id)
+#     # Stats berechnen und neu laden, wenn nicht vorhanden
+#     if not drill.stats:
+#         drill.save()
+#         drill = Drill.objects.get(id=drill.id)
 
-    html = "<br>"
+#     html = "<br>"
     
-    # Bechreibung
-    html += f"<strong>Beschreibung:</strong><br><div>{drill.description}</div><br>"
+#     # Bechreibung
+#     html += f"<strong>Beschreibung:</strong><br><div>{drill.description}</div><br>"
 
-    # Trainierte Skills
-    html += "<strong>Dieser Drill trainiert...</strong><br>"
-    for idx, count in enumerate(drill.stats['level2_distr']):
-        if count > 0:
-            percentage = count / sum(drill.stats['level2_distr']) * 100 if sum(drill.stats['level2_distr']) > 0 else 0
-            skill_names = ', '.join([skill.name for skill in drill.skills.filter(level2=idx + 1)])
-            html += f'''
-                <span style="display: inline-block; width: 12px; height: 12px; background-color: {config.colors["skills"]["strong"][idx + 1]}; margin-right: 5px;"></span>
-                {percentage:.0f}% {config.model_choices["skill_levels"][2][idx][1]} - <i>{skill_names}</i><br>
-            '''
+#     # Trainierte Skills
+#     html += "<strong>Dieser Drill trainiert...</strong><br>"
+#     for idx, count in enumerate(drill.stats['level2_distr']):
+#         if count > 0:
+#             percentage = count / sum(drill.stats['level2_distr']) * 100 if sum(drill.stats['level2_distr']) > 0 else 0
+#             skill_names = ', '.join([skill.name for skill in drill.skills.filter(level2=idx + 1)])
+#             html += f'''
+#                 <span style="display: inline-block; width: 12px; height: 12px; background-color: {config.colors["skills"]["strong"][idx + 1]}; margin-right: 5px;"></span>
+#                 {percentage:.0f}% {config.model_choices["skill_levels"][2][idx][1]} - <i>{skill_names}</i><br>
+#             '''
     
-    # Auslastung
-    html += "<br><strong>Auslastung:</strong><br>"
-    html += f"""
-        <div>Der Drill ist körperlich <i>{config.model_choices['drill_scales']['intensity'][drill.intensity - 1][1]}</i> 
-        und technisch <i>{config.model_choices['drill_scales']['difficulty'][drill.difficulty - 1][1]}</i>.</div>
-    """
+#     # Auslastung
+#     html += "<br><strong>Auslastung:</strong><br>"
+#     html += f"""
+#         <div>Der Drill ist körperlich <i>{config.model_choices['drill_scales']['intensity'][drill.intensity - 1][1]}</i> 
+#         und technisch <i>{config.model_choices['drill_scales']['difficulty'][drill.difficulty - 1][1]}</i>.</div>
+#     """
 
-    return html
+#     return html
 
 # def create_drill_list(filter_dict:dict) -> dict:
 #     '''
@@ -149,31 +161,59 @@ def create_drill_description_html(drill:Drill) -> str:
 #         'stats': stats_json
 #     }
 
-def create_drill_list(filter_dict:dict) -> dict:
+def create_drill_list(filter_dict:dict, paginate:int=10) -> dict:
+    '''
+    Creates the drill list for API Response.
+    '''
 
-    return {
+    # Daten abrufen
+    drills = Drill.objects.all()
+    drills = drills.order_by('name')  # Sortieren nach Name
+    skills = Skill.objects.all()
+
+    # Filter anwenden
+    if filter_dict['search']:
+        drills = drills.filter(name__icontains=filter_dict['search'])
+    if filter_dict['level1']:
+        drills = drills.filter(stats__level1_main=filter_dict['level1'])
+    if filter_dict['level2']:
+        drills = drills.filter(stats__level1_main=filter_dict['level2'])
+    if filter_dict['skills']:
+        drills = drills.filter(skills__pk__in=filter_dict['skills'])
+
+    # Drills Paginattion
+    paginator = Paginator(drills, paginate)  # 5 drills per page
+    drills_page = paginator.get_page(filter_dict['page'])
+
+    drill_list =  {
+        'meta': config.model_choices,
         'drills': [
             {
-                # id
-                # name
-                # color
-                # level1 dist
-                # intensity
-                # difficulty
-                # level2 dist
-            }
+                "id": drill.id,
+                "name": drill.name,
+                
+                "level1_main": drill.stats.get("level1_main", 0),
+                "level1_distr": drill.stats.get("level1_distr", []),
+                "level2_main": drill.stats.get("level2_main", 0),
+                "level2_distr": drill.stats.get("level2_distr", []),
+                
+                "intensity": drill.stats.get("intensity", 0),
+                "difficulty": drill.stats.get("difficulty", 0),
+            } for drill in drills_page
         ],
-        'stats': [
+        'skills': [
             {
-                # id
-                # name
-            }
+                "id": skill.id,
+                "name": skill.name,
+            } for skill in skills
         ],
         "paginator": {
-            # page
-            # num_pages
+            "page": drills_page.number,
+            "num_pages": paginator.num_pages,
         }
     }
+
+    return drill_list
 
 # TRAINING HANDLERS
 
@@ -307,12 +347,12 @@ def create_training_list(filter_dict:dict) -> dict:
     # sortieren und serialisieren
     trainings = trainings.order_by('checked', '-date')  # Sortieren nach Datum absteigend
 
-    for training in trainings:
+    # for training in trainings:
         
-        # HTML Beschreibung erstellen und in Json Feld speichern
-        html = create_training_description_html(training)
-        print(html)
-        training.description = html
+    #     # HTML Beschreibung erstellen und in Json Feld speichern
+    #     # html = create_training_description_html(training)
+    #     # print(html)
+    #     # training.description = html
     
     # Daten als json übergeben
     trainings_json = serializers.serialize("json", trainings)

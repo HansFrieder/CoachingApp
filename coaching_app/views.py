@@ -6,7 +6,7 @@ from django.forms.models import model_to_dict
 from .config import Config
 from .models import *
 from .functions import (
-    create_drill, create_drill_list, update_drill, create_training, create_training_list, update_training
+    create_drill, create_drill_list, update_drill, create_training, create_training_list, update_training, measure_context_size
 )
 import json
 
@@ -245,6 +245,8 @@ def api_drills(request):
     filter_dict = {
         'search': request.GET.get('search', None),
         'skills': request.GET.get('skills', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
+        'level1': request.GET.get('level1', None),
+        'level2': request.GET.get('level2', None),
         'page': request.GET.get('page', 1)
     }
 
@@ -252,7 +254,16 @@ def api_drills(request):
     drill_list_context = create_drill_list(filter_dict)
     context.update(drill_list_context)
 
-    return JsonResponse(context)
+    # Größe messen und senden, falls unter Schwellwert von 20KB
+    size = measure_context_size(context)
+    if size < 20:
+        return JsonResponse(
+            context,
+            json_dumps_params={'ensure_ascii': False, 'separators': (',', ':')}
+        )
+    else:
+        print("Context zu groß, sende Fehlermeldung.")
+        return JsonResponse({'error': 'Context size exceeds limit.'}, status=413)
 
 @login_required(login_url='login')
 def api_training(request):

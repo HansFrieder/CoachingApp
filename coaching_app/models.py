@@ -11,8 +11,8 @@ class Skill(models.Model):
     """
 
     name = models.CharField(max_length=100)
-    level1 = models.IntegerField(choices=config.model_choices['skill_levels'][1], default=1)
-    level2 = models.IntegerField(choices=config.model_choices['skill_levels'][2], default=1)
+    level1 = models.IntegerField(choices=config.model_choices['skill_level1'], default=1)
+    level2 = models.IntegerField(choices=config.model_choices['skill_level2'], default=1)
 
     def __str__(self):
         return self.name
@@ -25,8 +25,8 @@ class Drill(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     skills = models.ManyToManyField(Skill, related_name='drills')
-    intensity = models.IntegerField(choices=config.model_choices['drill_scales']['intensity'], default=1)
-    difficulty = models.IntegerField(choices=config.model_choices['drill_scales']['difficulty'], default=1)
+    intensity = models.IntegerField(choices=config.model_choices['intensity'], default=1)
+    difficulty = models.IntegerField(choices=config.model_choices['difficulty'], default=1)
     stats = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
@@ -62,11 +62,18 @@ class Drill(models.Model):
 
         # Dict für Json Feld
         self.stats = {
-            "color": config.colors["skills"]["soft"].get(level2_main[0][0], "#FFFFFF"), # Color (momentan nach Level 2)
-            "level1_distr": level1_dist, # Verteilung Level 1 als Liste ("Basics", "Technik", etc.)
-            "level2_distr": level2_dist, # Verteilung Level 2 als Liste ("Offense", "Defense", etc.)
-            "intensity": self.intensity, # Intensität
-            "difficulty": self.difficulty, # Schwierigkeit
+
+            # Verteilung Level 1 als Liste ("Basics", "Technik", etc.)
+            "level1_main": level1_main[0][0] if level1_main else None,
+            "level1_distr": level1_dist, 
+            
+            # Verteilung Level 2 als Liste ("Offense", "Defense", etc.)
+            "level2_main": level2_main[0][0] if level2_main else None,
+            "level2_distr": level2_dist,
+            
+            # Weitere
+            "intensity": self.intensity,
+            "difficulty": self.difficulty,
         }
 
     def save(self, *args, **kwargs):
@@ -169,8 +176,8 @@ class Training(models.Model):
 
         # Summieren
         dist_dict = {
-            1: repeat(0, len(config.model_choices['skill_levels'][1])),
-            2: repeat(0, len(config.model_choices['skill_levels'][2])),
+            1: [0] * len(config.model_choices['skill_levels'][1]),
+            2: [0] * len(config.model_choices['skill_levels'][2]),
         }
         intensity = 0
         difficulty = 0
@@ -194,7 +201,7 @@ class Training(models.Model):
 
         # Dict für Json Feld
         self.stats = {
-            "color": config.colors["finished_training"].get(self.checked, "#FFFFFF"), # Color
+            "checked": self.checked, # Color
             "level1_distr": dist_dict[1], # Verteilung Level 1 als Liste ("Basics", "Technik", etc.)
             "level2_distr": dist_dict[2], # Verteilung Level 2 als Liste ("Offense", "Defense", etc.)
             "intensity": intensity / netto_duration if netto_duration > 0 else 0, # Intensität
