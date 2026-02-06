@@ -245,7 +245,7 @@ def api_drills(request):
     filter_dict = {
         'search': request.GET.get('search', None),
         'skills': request.GET.get('skills', None),  # TODO: Gegebenenfalls Umgang mit keiner Skill-Auswahl
-        # 'page': request.GET.get('page', 1)
+        'page': request.GET.get('page', 1)
     }
 
     # Drill Context holen
@@ -265,6 +265,7 @@ def api_training(request):
     filter_dict = {
         'search': request.GET.get('search', None),
         # 'date_to': request.GET.get('date_to', None),
+        'page': request.GET.get('page', 1)
     }
 
     # Training Context holen

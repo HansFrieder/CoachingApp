@@ -110,43 +110,69 @@ def create_drill_description_html(drill:Drill) -> str:
 
     return html
 
-def create_drill_list(filter_dict:dict) -> dict:
-    '''
-    Create a filtered and paginated drill lists with all information to render "pages/drill_list.html":
-    '''
+# def create_drill_list(filter_dict:dict) -> dict:
+#     '''
+#     Create a filtered and paginated drill lists with all information to render "pages/drill_list.html":
+#     '''
 
-    # Daten abrufen
-    drills = Drill.objects.all()
-    drills = drills.order_by('name')  # Sortieren nach Name
-    skills = Skill.objects.all()
-    stats = {drill.id: drill.stats for drill in drills}
+#     # Daten abrufen
+#     drills = Drill.objects.all()
+#     drills = drills.order_by('name')  # Sortieren nach Name
+#     skills = Skill.objects.all()
+#     stats = {drill.id: drill.stats for drill in drills}
 
-    # Filter anwenden
-    if filter_dict['search']:
-        drills = drills.filter(name__icontains=filter_dict['search'])
-    if filter_dict['skills']:
-        drills = drills.filter(skills__pk__in=filter_dict['skills'])
+#     # Filter anwenden
+#     if filter_dict['search']:
+#         drills = drills.filter(name__icontains=filter_dict['search'])
+#     if filter_dict['skills']:
+#         drills = drills.filter(skills__pk__in=filter_dict['skills'])
 
-    # Drills Paginattion
-    # paginator = Paginator(drills, 10)  # 10 drills per page
-    # drills_page = paginator.get_page(filter_dict['page'])
-    for drill in drills:
+#     # Drills Paginattion
+#     paginator = Paginator(drills, 5)  # 5 drills per page
+#     drills_page = paginator.get_page(filter_dict['page'])
+#     for drill in drills_page:
         
-        # HTML Beschreibung erstellen und in Json Feld speichern
-        html = create_drill_description_html(drill)
-        drill.description = html
+#         # HTML Beschreibung erstellen und in Json Feld speichern
+#         html = create_drill_description_html(drill)
+#         drill.description = html
 
-    # Daten als Json übergeben
-    drills_json = serializers.serialize("json", drills)
-    skills_json = serializers.serialize("json", skills)
-    stats_json = json.dumps(stats)
+#     # Daten als Json übergeben
+#     drills_json = serializers.serialize("json", drills_page)
+#     skills_json = serializers.serialize("json", skills)
+#     stats_json = json.dumps(stats)
     
+#     return {
+#         # 'drills': drills_page,
+#         'drills': drills_json,
+#         # 'skills': skills,
+#         'skills': skills_json,
+#         'stats': stats_json
+#     }
+
+def create_drill_list(filter_dict:dict) -> dict:
+
     return {
-        # 'drills': drills_page,
-        'drills': drills_json,
-        # 'skills': skills,
-        'skills': skills_json,
-        'stats': stats_json
+        'drills': [
+            {
+                # id
+                # name
+                # color
+                # level1 dist
+                # intensity
+                # difficulty
+                # level2 dist
+            }
+        ],
+        'stats': [
+            {
+                # id
+                # name
+            }
+        ],
+        "paginator": {
+            # page
+            # num_pages
+        }
     }
 
 # TRAINING HANDLERS

@@ -19,6 +19,10 @@ python manage.py collectstatic --noinput
 echo "Running migrations..."
 python manage.py migrate
 
+# Alle Model-Instanzen speichern, um Stats zu aktualisieren
+echo "Updating stats for all instances..."
+python manage.py shell -c "from coaching_app.actions import save_all_instances; save_all_instances()"
+
 # Gunicorn systemd Service neu starten
 echo "Restarting Gunicorn service..."
 sudo systemctl daemon-reload
