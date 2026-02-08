@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 from django.core.paginator import Paginator
 from django.forms.models import model_to_dict
 from .config import Config
@@ -249,10 +250,37 @@ def api_drills(request):
         'level2': request.GET.get('level2', None),
         'page': request.GET.get('page', 1)
     }
+    print(filter_dict)
 
     # Drill Context holen
     drill_list_context = create_drill_list(filter_dict)
     context.update(drill_list_context)
+
+    # Größe messen und senden, falls unter Schwellwert von 20KB
+    size = measure_context_size(context)
+    if size < 20:
+        return JsonResponse(
+            context,
+            json_dumps_params={'ensure_ascii': False, 'separators': (',', ':')}
+        )
+    else:
+        print("Context zu groß, sende Fehlermeldung.")
+        return JsonResponse({'error': 'Context size exceeds limit.'}, status=413)
+
+@login_required(login_url='login')
+def api_drill_details(request, drill_id):
+    """
+    API endpoint to get drill context based on drill ID.
+    """
+
+    # Drill Laden
+    drill = Drill.objects.get(id=drill_id)
+
+    # Context erstellen
+    context = {
+        "meta": config.model_choices,
+        "drill": serializers.serialize("json", [drill])
+    }
 
     # Größe messen und senden, falls unter Schwellwert von 20KB
     size = measure_context_size(context)

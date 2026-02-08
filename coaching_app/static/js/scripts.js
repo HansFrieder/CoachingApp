@@ -221,3 +221,22 @@ function durationToMinutes(durationString) {
     
     return parseInt(hours) * 60 + parseInt(minutes);
 }
+
+function getCookie(name) {
+
+    // Gibt einen bestimmten Cookie nach Namen zurück
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+                break;
+            }
+        }
+    }
+    return cookieValue;
+    }

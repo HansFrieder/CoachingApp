@@ -17,9 +17,10 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="{% static 'js/components.js' %}"></script>
+    <!-- <script src="{% static 'js/components.js' %}"></script> -->
+    <script src="{% static 'js/components_new.js' %}"></script>
 </head>
-<body>
+<body style="background-color: #414141;">
     <header>
         <!-- Kopfzeile mit Authentifizierung -->
         {% if not hide_navbar %}
@@ -53,14 +54,17 @@
         
         <!-- Navigation Button -->
         {% if user.is_authenticated and not hide_navbar %}
-        <a class="btn btn-light custom-nav-btn position-fixed bottom-0 end-0 m-4 rounded-circle shadow p-0" href="{% url 'navigation_popup' %}">
+        <a 
+            class="btn custom-nav-btn position-fixed bottom-0 end-0 m-4 rounded-circle shadow p-0" 
+            href="{% url 'navigation_popup' %}"
+        >
             <img class="p-0 m-0" src="{% static 'images/basketball-icon.png' %}" alt="Menu" width="60" height="60">
         </a>
         {% endif %}
     </main>
 
     <!-- Copyright Section -->
-    <footer class="text-center p-3 mt-5">
+    <footer class="text-center text-light p-3 mt-5">
         <p>&copy; 2026 Coaching App. All rights reserved. V1.0.2</p>
     </footer>
     

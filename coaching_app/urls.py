@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 from django.utils.module_loading import import_string
 
@@ -44,5 +46,9 @@ urlpatterns = [
     
     # API Endpoints
     path('api/drills/', views.api_drills, name='api_drills'),  # API for Drill Context
+    path('api/drills/<int:drill_id>/', views.api_drill_details, name='api_drill_details'),  # API for Drill Details
     path('api/training/', views.api_training, name='api_training'),  # API for Training Context
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

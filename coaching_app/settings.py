@@ -149,3 +149,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Login and Logout settings
 LOGIN_REDIRECT_URL = '/' # Nach erfolgreichem Login hierhin
 LOGOUT_REDIRECT_URL = '/login/'# Nach Logout hierhin
+
+# Handling of media files (e.g., drill images)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

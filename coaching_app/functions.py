@@ -6,6 +6,7 @@ import json
 from .models import *
 
 # TECHNICAL HELPERS
+
 def measure_context_size(context:dict) -> int:
     '''
     Measure the size of a context dictionary in bytes.
@@ -122,45 +123,6 @@ def update_drill(updated_drill:dict) -> None:
 
 #     return html
 
-# def create_drill_list(filter_dict:dict) -> dict:
-#     '''
-#     Create a filtered and paginated drill lists with all information to render "pages/drill_list.html":
-#     '''
-
-#     # Daten abrufen
-#     drills = Drill.objects.all()
-#     drills = drills.order_by('name')  # Sortieren nach Name
-#     skills = Skill.objects.all()
-#     stats = {drill.id: drill.stats for drill in drills}
-
-#     # Filter anwenden
-#     if filter_dict['search']:
-#         drills = drills.filter(name__icontains=filter_dict['search'])
-#     if filter_dict['skills']:
-#         drills = drills.filter(skills__pk__in=filter_dict['skills'])
-
-#     # Drills Paginattion
-#     paginator = Paginator(drills, 5)  # 5 drills per page
-#     drills_page = paginator.get_page(filter_dict['page'])
-#     for drill in drills_page:
-        
-#         # HTML Beschreibung erstellen und in Json Feld speichern
-#         html = create_drill_description_html(drill)
-#         drill.description = html
-
-#     # Daten als Json übergeben
-#     drills_json = serializers.serialize("json", drills_page)
-#     skills_json = serializers.serialize("json", skills)
-#     stats_json = json.dumps(stats)
-    
-#     return {
-#         # 'drills': drills_page,
-#         'drills': drills_json,
-#         # 'skills': skills,
-#         'skills': skills_json,
-#         'stats': stats_json
-#     }
-
 def create_drill_list(filter_dict:dict, paginate:int=10) -> dict:
     '''
     Creates the drill list for API Response.
@@ -173,11 +135,12 @@ def create_drill_list(filter_dict:dict, paginate:int=10) -> dict:
 
     # Filter anwenden
     if filter_dict['search']:
+        
         drills = drills.filter(name__icontains=filter_dict['search'])
     if filter_dict['level1']:
-        drills = drills.filter(stats__level1_main=filter_dict['level1'])
+        drills = drills.filter(level1=filter_dict['level1'])
     if filter_dict['level2']:
-        drills = drills.filter(stats__level1_main=filter_dict['level2'])
+        drills = drills.filter(level2=filter_dict['level2'])
     if filter_dict['skills']:
         drills = drills.filter(skills__pk__in=filter_dict['skills'])
 
@@ -187,26 +150,37 @@ def create_drill_list(filter_dict:dict, paginate:int=10) -> dict:
 
     drill_list =  {
         'meta': config.model_choices,
-        'drills': [
+        'data': [
             {
                 "id": drill.id,
                 "name": drill.name,
                 
-                "level1_main": drill.stats.get("level1_main", 0),
+                "level1": drill.level1,
                 "level1_distr": drill.stats.get("level1_distr", []),
-                "level2_main": drill.stats.get("level2_main", 0),
+                "level2": drill.level2,
                 "level2_distr": drill.stats.get("level2_distr", []),
                 
                 "intensity": drill.stats.get("intensity", 0),
                 "difficulty": drill.stats.get("difficulty", 0),
             } for drill in drills_page
         ],
-        'skills': [
-            {
-                "id": skill.id,
-                "name": skill.name,
-            } for skill in skills
-        ],
+        'filter': {
+            'name': True,
+            'skills': [
+                {
+                    "id": skill.id,
+                    "name": skill.name,
+                } for skill in skills
+            ],
+            'level1': [{
+                "id": key,
+                "name": value
+            } for key, value in config.model_choices['skill_level1'].items()],
+            'level2': [{
+                "id": key,
+                "name": value
+            } for key, value in config.model_choices['skill_level2'].items()]
+        },
         "paginator": {
             "page": drills_page.number,
             "num_pages": paginator.num_pages,

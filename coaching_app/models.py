@@ -5,6 +5,13 @@ from collections import Counter
 
 config = Config()
 
+# Funktionen
+
+def drill_image_path(instance, filename):
+    return f"drills/{instance.id}/{filename}"
+
+# Models
+
 class Skill(models.Model):
     """
     Model representing a skill in the coaching app.
@@ -16,7 +23,17 @@ class Skill(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+class Equipment(models.Model):
+    """
+    Model representing a piece of equipment in the coaching app.
+    """
+
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
 class Drill(models.Model):
     """
     Model representing a drill in the coaching app.
@@ -24,9 +41,17 @@ class Drill(models.Model):
 
     name = models.CharField(max_length=100)
     description = models.TextField()
+    link = models.URLField(blank=True)
+    image = models.ImageField(upload_to=drill_image_path, null=True, blank=True)
+    
     skills = models.ManyToManyField(Skill, related_name='drills')
+    equipment = models.ManyToManyField(Equipment, related_name='drills')
+    
     intensity = models.IntegerField(choices=config.model_choices['intensity'], default=1)
     difficulty = models.IntegerField(choices=config.model_choices['difficulty'], default=1)
+    level1 = models.IntegerField(choices=config.model_choices['skill_level1'], blank=True, null=True)
+    level2 = models.IntegerField(choices=config.model_choices['skill_level2'], blank=True, null=True)
+    
     stats = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
@@ -39,13 +64,14 @@ class Drill(models.Model):
 
         # Werte zählen
         values = self.skills.values_list("level" + str(level), flat=True)
-        value_counts = Counter([v[0] for v in config.model_choices['skill_levels'][level] if v[1] != "Weitere" and v[0] in values])
+        key = "skill_level" + str(level)
+        value_counts = Counter([k for k, v in config.model_choices[key].items() if v != "Weitere" and k in values])
         
         # Größter Anteil
         main = value_counts.most_common(1) if value_counts else None
         
         # Verteilung
-        dist = {tuple[0]: 0 for tuple in config.model_choices['skill_levels'][level]}
+        dist = {k: 0 for k, v in config.model_choices[key].items()}
         dist.update(dict(value_counts))
         dist_list = list(dist.values())
 
@@ -60,15 +86,15 @@ class Drill(models.Model):
         level1_dist, level1_main = self.__calc_dist(1)
         level2_dist, level2_main = self.__calc_dist(2)
 
+        # Level1 und Level2 festlegen
+        self.level1 = level1_main[0][0] if level1_main else None
+        self.level2 = level2_main[0][0] if level2_main else None
+
         # Dict für Json Feld
         self.stats = {
 
-            # Verteilung Level 1 als Liste ("Basics", "Technik", etc.)
-            "level1_main": level1_main[0][0] if level1_main else None,
-            "level1_distr": level1_dist, 
-            
-            # Verteilung Level 2 als Liste ("Offense", "Defense", etc.)
-            "level2_main": level2_main[0][0] if level2_main else None,
+            # Verteilung Level 1 und Level 2
+            "level1_distr": level1_dist,
             "level2_distr": level2_dist,
             
             # Weitere
@@ -93,8 +119,11 @@ class Training(models.Model):
 
     name = models.CharField(max_length=100, blank=True)
     date = models.DateField()
+    description = models.TextField(blank=True)
+
     player_count = models.IntegerField(default=10)
     duration = models.DurationField()
+    
     actions = models.JSONField(default=dict, blank=True)
     """
     actions = [{
@@ -104,7 +133,8 @@ class Training(models.Model):
     }]
     """
     drills = models.ManyToManyField(Drill, related_name='trainings')
-    description = models.TextField(blank=True)
+    equipment = models.ManyToManyField(Equipment, related_name='trainings')
+    
     stats = models.JSONField(default=dict, blank=True)
     checked = models.BooleanField(default=False)
 
@@ -116,8 +146,9 @@ class Training(models.Model):
         Helper function to return a default distribution list based on the skill levels.
         """
 
+        key = "skill_level" + str(level)
         default_list = [
-            0 if level[1] != "Weitere" else 1 for level in config.model_choices['skill_levels'][level]
+            0 if level[1] != "Weitere" else 1 for level in config.model_choices[key].values()
         ]
 
         return default_list
@@ -131,6 +162,17 @@ class Training(models.Model):
         drills = Drill.objects.filter(id__in=drill_ids)
         self.drills.set(drills)
     
+    def fill_equipment(self):
+        """
+        Fill the equipment ManyToMany field based on the drills in the training.
+        """
+
+        equipment_ids = set()
+        for drill in self.drills.all():
+            equipment_ids.update(drill.equipment.values_list('id', flat=True))
+        equipment = Equipment.objects.filter(id__in=equipment_ids)
+        self.equipment.set(equipment)
+
     def calc_stats(self):
         """        
         Calculate statistics for the drill, especially for visualization in frontend.
@@ -176,8 +218,8 @@ class Training(models.Model):
 
         # Summieren
         dist_dict = {
-            1: [0] * len(config.model_choices['skill_levels'][1]),
-            2: [0] * len(config.model_choices['skill_levels'][2]),
+            1: [0] * len(config.model_choices['skill_level1']),
+            2: [0] * len(config.model_choices['skill_level2']),
         }
         intensity = 0
         difficulty = 0
@@ -215,6 +257,7 @@ class Training(models.Model):
         """
         if self.pk:  # Wird nur aufgerufen, wenn das Objekt bereits existiert
             self.fill_drills()
+            self.fill_equipment()
             self.name = self.date.strftime("%Y-%m-%d")
             self.calc_stats()
 
