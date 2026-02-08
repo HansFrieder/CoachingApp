@@ -181,9 +181,12 @@ def create_drill_list(filter_dict:dict, paginate:int=10) -> dict:
                 "name": value
             } for key, value in config.model_choices['skill_level2'].items()]
         },
+        "current_filters": filter_dict,
         "paginator": {
             "page": drills_page.number,
             "num_pages": paginator.num_pages,
+            "has_previous": drills_page.has_previous(),
+            "has_next": drills_page.has_next(),
         }
     }
 

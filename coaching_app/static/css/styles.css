@@ -4,6 +4,12 @@
     color: #ffffff;
 }
 
+.btn-paginator {
+    background-color: transparent;
+    color: #ffffff;
+    font-size: large;
+}
+
 .pop-up-background {
     display: none;
     position: fixed;
