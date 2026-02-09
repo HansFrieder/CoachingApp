@@ -14,6 +14,7 @@ class CDList extends HTMLElement {
 
         // Weitere Attribute können hier gelesen werden (z.B. ob editierbar, welche Spalten, etc.)
         this.colorBy = this.getAttribute("cd-color-by");
+        this.showDescription = this.getAttribute("show-description") === "true";
 
         await this.loadAndRender();
     }
@@ -74,6 +75,7 @@ class CDList extends HTMLElement {
     // Rendern der Daten in die Tabelle
     render(context) {
 
+        // Basis Aufbau und Container
         this.innerHTML = `
         <!-- Filter- und Suchleiste -->
         <div class="row">
@@ -83,7 +85,7 @@ class CDList extends HTMLElement {
         <!-- Eintragsliste -->
         <div class="row">
             <div class="col p-0">
-                <div id="cd-list-container" class="overflow-auto" style="max-height: 400px;"></div>
+                <div id="cd-list-container" class="overflow-auto" style="max-height: 250px;"></div>
             </div>
         </div>
 
@@ -91,10 +93,7 @@ class CDList extends HTMLElement {
         <div class="row">
             <div class="col d-flex justify-content-center mt-3" id="cd-pagination-container"></div>
         </div>
-        `;  
-
-        // Hier wird die Tabelle basierend auf den Daten und Attributen aufgebaut
-        // (Implementierung folgt)
+        `;
 
         // Filter und Suchleiste erstellen
         const filterContainer = this.querySelector("#cd-filter-container");
@@ -111,7 +110,8 @@ class CDList extends HTMLElement {
         context.data.forEach(item => {
             const listItem = document.createElement("cd-list-item");
             listItem.data = item; // Daten für das Listenelement setzen
-            listItem.color = colors?.[this.colorBy]?.[item[this.colorBy]]?.[1] ?? '#FFFFFF';
+            listItem.color = colors?.[this.colorBy]?.[item[this.colorBy]]?.[0] ?? '#FFFFFF';
+            listItem.setAttribute("show-description", this.showDescription ? "true" : "false");
             listContainer.appendChild(listItem);
             listItem.render();
         });
@@ -138,6 +138,10 @@ class CDFilterForm extends HTMLElement {
     }
 
     connectedCallback() {
+
+        // HTML-Attribute auslesen
+        
+
         this.render();
     }
 
@@ -195,8 +199,6 @@ class CDFilterForm extends HTMLElement {
 customElements.define("cd-filter-form", CDFilterForm);
 
 class CDListItem extends HTMLElement {
-    
-    
     constructor() {
         super();
         this.data = null;
@@ -204,19 +206,89 @@ class CDListItem extends HTMLElement {
     }
 
     connectedCallback() {
+
+        // HTML-Attribute auslesen
+        this.nameIsEditable = this.getAttribute("name-editable") === "true";
+        this.showDescription = this.getAttribute("show-description") === "true";
+
         this.render();
+    }
+
+    FillDescription() {
     }
 
     render() {
         if (!this.data) return;
 
+        // Variablen
+        this.itemId = this.data.id;
+
+        // Basis Container
         this.innerHTML = `
             <div 
                 id="item-container" 
-                class="row mx-0 border border-dark rounded mt-2 p-2" 
+                class="d-flex flex-row align-itelms-center mx-0 border border-dark rounded-pill my-1 mx-2 py-2 ps-3 pe-0" 
                 style="background-color: ${this.color};">
             </div>
         `;
+        const container = this.querySelector('#item-container');
+
+        // Name (Input Feld statt Text, wenn editierbar)
+        if (this.nameIsEditable) {
+            const nameInput = document.createElement("Input");
+            nameInput.type = "text";
+            nameInput.name = "name";
+            nameInput.value = this.getAttribute('data-name') || this.data.name;
+            nameInput.className = "p-0 flex-fill d-flex text-truncate align-items-center";
+            nameInput.style.minWidth = "0";
+            container.appendChild(nameInput);
+        } else {
+            const nameDiv = document.createElement('div');
+            nameDiv.className = "p-0 flex-fill d-flex text-truncate align-items-center";
+            nameDiv.textContent = this.data.name;
+            container.appendChild(nameDiv);
+        }
+
+        // VVVVVVVV Buttons am Ende des Items VVVVVVVV
+        const endCol = document.createElement('div');
+        endCol.className = "flex-schrink justify-content-end align-items-center mx-2";
+
+        // Beschreibung Button (optional)
+        if (this.showDescription) {
+            const collButton = document.createElement('button');
+            collButton.className = "btn btn-sm rounded-circle";
+            collButton.type = "button";
+            collButton.dataset.bsToggle = "collapse";
+            collButton.dataset.bsTarget = `#desc-${this.itemId}`;
+            collButton.setAttribute("aria-expanded", "false");
+            collButton.setAttribute("aria-controls", `desc-${this.itemId}`);
+            collButton.style = "background-color: black; color: white;";
+            collButton.innerHTML = "&#9660;";
+            endCol.appendChild(collButton);
+        }
+
+        container.appendChild(endCol);
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        // Beschreibung Collapsable (optional)
+        if (this.showDescription) {
+            const collapsable = document.createElement('div');
+            collapsable.className = "collapse collapsable-description border border-light mx-2 px-3 pb-2 text-center";
+            collapsable.id = `desc-${this.itemId}`;
+            collapsable.innerHTML = `
+                <div class='first-chart'></div>
+                <div class='second-chart'></div>
+                <div class='third-chart'></div>
+            `;
+
+            // Editieren und Check-Button (TODO)
+
+            this.appendChild(collapsable);
+        }
+
+        // Beschreibung befüllen
+        this.FillDescription();
+
     }
 }
 customElements.define("cd-list-item", CDListItem);

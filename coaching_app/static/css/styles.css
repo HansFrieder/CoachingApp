@@ -10,6 +10,19 @@
     font-size: large;
 }
 
+.collapsable-description {
+    position: relative;
+    background-color: #353535;
+    color: #ffffff;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+    padding-top: 30px;
+    margin-top: -30px;
+    z-index: -1;
+}
+
 .pop-up-background {
     display: none;
     position: fixed;

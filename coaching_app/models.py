@@ -45,7 +45,7 @@ class Drill(models.Model):
     image = models.ImageField(upload_to=drill_image_path, null=True, blank=True)
     
     skills = models.ManyToManyField(Skill, related_name='drills')
-    equipment = models.ManyToManyField(Equipment, related_name='drills')
+    equipment = models.ManyToManyField(Equipment, related_name='drills', null=True, blank=True)
     
     intensity = models.IntegerField(choices=config.model_choices['intensity'], default=1)
     difficulty = models.IntegerField(choices=config.model_choices['difficulty'], default=1)

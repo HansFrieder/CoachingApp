@@ -250,10 +250,9 @@ def api_drills(request):
         'level2': request.GET.get('level2', None),
         'page': request.GET.get('page', 1)
     }
-    print(filter_dict)
 
     # Drill Context holen
-    drill_list_context = create_drill_list(filter_dict)
+    drill_list_context = create_drill_list(filter_dict, paginate=7)
     context.update(drill_list_context)
 
     # Größe messen und senden, falls unter Schwellwert von 20KB
@@ -261,7 +260,7 @@ def api_drills(request):
     if size < 20:
         return JsonResponse(
             context,
-            json_dumps_params={'ensure_ascii': False, 'separators': (',', ':')}
+            json_dumps_params={'ensure_ascii': True, 'separators': (',', ':')}
         )
     else:
         print("Context zu groß, sende Fehlermeldung.")
