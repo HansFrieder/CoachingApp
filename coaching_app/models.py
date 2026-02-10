@@ -18,8 +18,8 @@ class Skill(models.Model):
     """
 
     name = models.CharField(max_length=100)
-    level1 = models.IntegerField(choices=config.model_choices['skill_level1'], default=1)
-    level2 = models.IntegerField(choices=config.model_choices['skill_level2'], default=1)
+    level1 = models.IntegerField(choices=config.model_choices['level1'], default=1)
+    level2 = models.IntegerField(choices=config.model_choices['level2'], default=1)
 
     def __str__(self):
         return self.name
@@ -49,8 +49,8 @@ class Drill(models.Model):
     
     intensity = models.IntegerField(choices=config.model_choices['intensity'], default=1)
     difficulty = models.IntegerField(choices=config.model_choices['difficulty'], default=1)
-    level1 = models.IntegerField(choices=config.model_choices['skill_level1'], blank=True, null=True)
-    level2 = models.IntegerField(choices=config.model_choices['skill_level2'], blank=True, null=True)
+    level1 = models.IntegerField(choices=config.model_choices['level1'], blank=True, null=True)
+    level2 = models.IntegerField(choices=config.model_choices['level2'], blank=True, null=True)
     
     stats = models.JSONField(default=dict, blank=True)
 
@@ -64,7 +64,7 @@ class Drill(models.Model):
 
         # Werte zählen
         values = self.skills.values_list("level" + str(level), flat=True)
-        key = "skill_level" + str(level)
+        key = "level" + str(level)
         value_counts = Counter([k for k, v in config.model_choices[key].items() if v != "Weitere" and k in values])
         
         # Größter Anteil
@@ -146,7 +146,7 @@ class Training(models.Model):
         Helper function to return a default distribution list based on the skill levels.
         """
 
-        key = "skill_level" + str(level)
+        key = "level" + str(level)
         default_list = [
             0 if level[1] != "Weitere" else 1 for level in config.model_choices[key].values()
         ]
@@ -218,8 +218,8 @@ class Training(models.Model):
 
         # Summieren
         dist_dict = {
-            1: [0] * len(config.model_choices['skill_level1']),
-            2: [0] * len(config.model_choices['skill_level2']),
+            1: [0] * len(config.model_choices['level1']),
+            2: [0] * len(config.model_choices['level2']),
         }
         intensity = 0
         difficulty = 0

@@ -27,6 +27,94 @@ class CDList extends HTMLElement {
 
         this.render(context);
     }
+    
+    // Beschreibung füllen
+    FillDescription(item, meta) {
+        const collapse = this.querySelector('#desc-' + item.id);
+        collapse.className = "collapse.show collapsable-description border border-light mx-2 px-3 pb-2 text-center";
+        const collContainer = collapse.querySelector('#description-content-' + item.id);
+        
+        let chartWidth = collContainer.offsetWidth / 2; // 10px Abstand
+        const colors = getColors();
+
+        ['first-chart', 'second-chart', 'third-chart'].forEach((chart) => {
+
+            if (chart === 'first-chart') {
+                let key = 'level1';
+                let values = Object.values(item[key + "_distr"]);
+                let labels = Object.values(meta[key]);
+                let container = document.createElement('div');
+                container.className = 'first-chart d-flex flex-column';
+                container.style.maxWidth = chartWidth + 'px';
+                container.style.backgroundColor = 'transparent';
+                
+                values.forEach((val, index) => {
+                    let tip = document.createElement('div');
+                    tip.className = 'rounded-pill m-1 p-1';
+                    tip.textContent = `${labels[index]}`;
+                    tip.style.backgroundColor = val === 1 ? colors[key][index + 1][1] || '#FFFFFF' : 'transparent';
+                    tip.style.color = val === 1 ? '#000000' : '#FFFFFF';
+                    tip.style.fontSize = '12px';
+                    container.appendChild(tip);
+                });
+                collContainer.appendChild(container);
+            };
+
+            let canvas = collContainer.querySelector('canvas' + '.' + chart);
+            if (!canvas) {
+                canvas = document.createElement('canvas');
+            }
+            canvas.className = chart
+            canvas.width = chartWidth;
+            canvas.height = 100;
+            let ctx = canvas.getContext('2d');
+
+            // // Chart befüllen
+            // if (chart === 'first-chart') {
+            //     let key = 'level1';
+            //     let labels = Object.values(meta[key]);
+            //     let numbers = item[key + "_distr"];
+            //     let chartColors = Object.values(colors[key]).map(c => c[1]);
+
+            //     let data = {
+            //         labels: labels,
+            //         datasets: [{
+            //             data: numbers,
+            //             backgroundColor: chartColors,
+            //         }]
+            //     }
+                
+            //     new Chart(ctx, {
+            //         type: 'bar',
+            //         data: data,
+            //         options: {
+            //             indexAxis: 'y',
+            //             plugins: {
+            //                 legend: { display: false },       // Legende aus
+            //                 tooltip: { enabled: false },       // Tooltip aus
+            //             },
+            //             scales: {
+            //                 x: {
+            //                     grid: { display: false },       // X-Grid weg
+            //                     ticks: { display: false },      // X-Skalen-Labels weg
+            //                     border: { display: false }
+            //                 },
+            //                 y: {
+            //                     grid: { display: false },       // Y-Grid weg
+            //                     ticks: { display: true, color: '#ffffff' },      // Y-Skalen-Labels weg
+            //                     border: { display: false }
+            //                 }
+            //             }
+            //         }
+            //     });
+            // } 
+
+            collContainer.appendChild(canvas);
+        });
+
+        collapse.className = "collapse collapsable-description border border-light mx-2 px-3 pb-2 text-center";
+        collapse.setAttribute('aria-expanded', 'false');
+    }
 
     // Das hier passiert, wenn Filter angewendet werden (Re-Request)
     FilterAufrufen() {
@@ -124,8 +212,19 @@ class CDList extends HTMLElement {
             paginationContainer.appendChild(paginator);
         }
 
+        // Einmalige Funktionen aufrufen (Filter, Pagination, Beschreibung füllen)
         this.FilterAufrufen();
         this.PageChange(context);
+        
+        // Beschreibung füllen (Resize Event Listener hinzufügen)
+        context.data.forEach(item => {
+            this.FillDescription(item, context.meta);
+        });
+        window.addEventListener('resize', () => {
+            context.data.forEach(item => {
+                this.FillDescription(item, context.meta);
+            });
+        });
     }
 }
 customElements.define("cd-list", CDList);
@@ -154,7 +253,8 @@ class CDFilterForm extends HTMLElement {
             <div class="row" id="search-container">
                 <input 
                     type="text" 
-                    name="search" 
+                    name="search"
+                    value="${this.current_filters?.search || ''}"
                     placeholder="Stichwort suchen..." 
                     class="form-control border border-2 border-dark me-2 flex-grow-1"
                 >
@@ -214,9 +314,6 @@ class CDListItem extends HTMLElement {
         this.render();
     }
 
-    FillDescription() {
-    }
-
     render() {
         if (!this.data) return;
 
@@ -260,7 +357,7 @@ class CDListItem extends HTMLElement {
             collButton.type = "button";
             collButton.dataset.bsToggle = "collapse";
             collButton.dataset.bsTarget = `#desc-${this.itemId}`;
-            collButton.setAttribute("aria-expanded", "false");
+            collButton.setAttribute("aria-expanded", "true");
             collButton.setAttribute("aria-controls", `desc-${this.itemId}`);
             collButton.style = "background-color: black; color: white;";
             collButton.innerHTML = "&#9660;";
@@ -273,21 +370,17 @@ class CDListItem extends HTMLElement {
         // Beschreibung Collapsable (optional)
         if (this.showDescription) {
             const collapsable = document.createElement('div');
-            collapsable.className = "collapse collapsable-description border border-light mx-2 px-3 pb-2 text-center";
+            collapsable.className = "collapse.show collapsable-description border border-light mx-2 px-3 pb-2 text-center";
             collapsable.id = `desc-${this.itemId}`;
             collapsable.innerHTML = `
-                <div class='first-chart'></div>
-                <div class='second-chart'></div>
-                <div class='third-chart'></div>
+                <div class='col flex-fill d-flex flex-row' id="description-content-${this.itemId}">
+                </div>
             `;
 
             // Editieren und Check-Button (TODO)
 
             this.appendChild(collapsable);
         }
-
-        // Beschreibung befüllen
-        this.FillDescription();
 
     }
 }

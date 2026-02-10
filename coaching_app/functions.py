@@ -175,11 +175,11 @@ def create_drill_list(filter_dict:dict, paginate:int=10) -> dict:
             'level1': [{
                 "id": key,
                 "name": value
-            } for key, value in config.model_choices['skill_level1'].items()],
+            } for key, value in config.model_choices['level1'].items()],
             'level2': [{
                 "id": key,
                 "name": value
-            } for key, value in config.model_choices['skill_level2'].items()]
+            } for key, value in config.model_choices['level2'].items()]
         },
         "current_filters": filter_dict,
         "paginator": {

@@ -32,13 +32,13 @@ class Config:
         }
 
         self.model_choices = {
-            'skill_level1': {
+            'level1': {
                 1: "Basics",
                 2: "Technik",
                 3: "Taktik",
                 4: "Weitere"
             },
-            'skill_level2': {
+            'level2': {
                 1: "Offense", 
                 2: "Defense", 
                 3: "Transition", 
