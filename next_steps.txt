@@ -1,23 +1,13 @@
 NEXT STEPS:
 
-List-Item:
-- Beschreibungen detaillieren
-    - bei Drills, Skills mit Farben (x)
-    - Links bei Drills einbauen ()
-    - bei Training, Drills als Liste (x)
-    - Stats einbauen () -> auch bei Training einbinden
-- Legende einbauen
-
-Training planen:
-- Drag and Drop auf Mobile Device fixen (?)
-
-Training-Report:
-- Zeitreihen
-    - Skillsverteilung (x)
-    - Intensität (x)
-    - Schwierigkeit (x)
-    - Spieleranzahl (x)
-    - Auf Datumin X-Achse umstellen
-- Kuchendiagramm
-    - Skillsverteilung mit Zeitraumfilter (letzte Woche, letzter Monat, ...)
+Drill-Item:
+- Collapsable:
+    - Container sauber aufteilen ()
+    - Level1: Auswahl, worauf es zutrifft (x)
+    - Schwierigkeits- und Intensitätsbalken (x)
+        --> Chart auslagern und mit Argumenten erstellen ()
+    - Level2: Verteilungsdiagramm ()
+    - Buttons:
+        - Information ()
+        - Bearbeitung ()
 

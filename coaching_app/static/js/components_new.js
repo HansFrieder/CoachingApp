@@ -1,3 +1,11 @@
+// const { color } = require("chart.js/helpers");
+// import { Chart } from 'chart.js';
+// import { Colors } from 'chart.js';
+
+// const { callback } = require("chart.js/helpers");
+
+// Chart.register(Colors);
+
 class CDList extends HTMLElement {
     constructor() {
         super();
@@ -32,22 +40,17 @@ class CDList extends HTMLElement {
     FillDescription(item, meta) {
         const collapse = this.querySelector('#desc-' + item.id);
         collapse.className = "collapse.show collapsable-description border border-light mx-2 px-3 pb-2 text-center";
-        const collContainer = collapse.querySelector('#description-content-' + item.id);
-        
-        let chartWidth = collContainer.offsetWidth / 2; // 10px Abstand
         const colors = getColors();
 
-        ['first-chart', 'second-chart', 'third-chart'].forEach((chart) => {
+        ['level1', 'difficulty', 'intensity', 'level2'].forEach((key, _) => {
 
-            if (chart === 'first-chart') {
-                let key = 'level1';
+            if (key === 'level1') {
                 let values = Object.values(item[key + "_distr"]);
                 let labels = Object.values(meta[key]);
-                let container = document.createElement('div');
-                container.className = 'first-chart d-flex flex-column';
-                container.style.maxWidth = chartWidth + 'px';
-                container.style.backgroundColor = 'transparent';
-                
+                let container = collapse.querySelector('#col1-' + item.id);
+                container.innerHTML = '';
+
+                // Container mit Daten füllen
                 values.forEach((val, index) => {
                     let tip = document.createElement('div');
                     tip.className = 'rounded-pill m-1 p-1';
@@ -57,17 +60,204 @@ class CDList extends HTMLElement {
                     tip.style.fontSize = '12px';
                     container.appendChild(tip);
                 });
-                collContainer.appendChild(container);
-            };
+            } else if (key === 'difficulty') {
+                let dataValue = item[key];
+                let labels = Object.values(meta[key]);
+                let container = collapse.querySelector('#col2-row1-' + item.id);
+                container.innerHTML = '';
 
-            let canvas = collContainer.querySelector('canvas' + '.' + chart);
-            if (!canvas) {
-                canvas = document.createElement('canvas');
+                // Container mit Daten füllen
+                let canvas = document.createElement('canvas');
+                canvas.width = container.offsetWidth;
+                canvas.height = 60;
+                let ctx = canvas.getContext('2d');
+                let data = {
+                    labels: ["", ""],
+                    datasets: [{
+                        data: [dataValue],
+                        backgroundColor: ['#FFFFFF'],
+                    },
+                    {
+                        data: [5 - dataValue],
+                        backgroundColor: ['#000000'],
+                    }]   
+                };
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: { display: false },       // Legende aus
+                            tooltip: { enabled: false },       // Tooltip aus
+                            title: {
+                                display: true,
+                                text: 'Schwierigkeitsgrad',
+                                color: '#FFFFFF',
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },       // X-Grid weg
+                                border: { display: false },
+                                min: 0,
+                                max: 5,
+                                ticks: {
+                                    display: false,
+                                    align: 'center',
+                                    color: '#ffffff',
+                                    font: {
+                                        size: 7,
+                                    },
+                                },
+                                stacked: true,
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: { display: false },
+                                border: { display: false },
+                                stacked: true,
+                            }
+                        }
+                    }
+                });
+
+                container.appendChild(canvas);
+            } else if (key === 'intensity') {
+                let dataValue = item[key];
+                let labels = Object.values(meta[key]);
+                let container = collapse.querySelector('#col2-row2-' + item.id);
+                container.innerHTML = '';
+
+                // Container mit Daten füllen
+                let canvas = document.createElement('canvas');
+                canvas.width = container.offsetWidth;
+                canvas.height = 60;
+                let ctx = canvas.getContext('2d');
+                let data = {
+                    labels: ["", ""],
+                    datasets: [{
+                        data: [dataValue],
+                        backgroundColor: ['#FFFFFF'],
+                    },
+                    {
+                        data: [5 - dataValue],
+                        backgroundColor: ['#000000'],
+                    }]   
+                };
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        indexAxis: 'y',
+                        backgroundColor: '#000000',
+                        plugins: {
+                            legend: { display: false },       // Legende aus
+                            tooltip: { enabled: false },       // Tooltip aus
+                            title: {
+                                display: true,
+                                text: 'Intensität',
+                                color: '#FFFFFF',
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },       // X-Grid weg
+                                border: { display: false },
+                                min: 0,
+                                max: 5,
+                                ticks: {
+                                    display: false,
+                                    align: 'center',
+                                    color: '#ffffff',
+                                    font: {
+                                        size: 7,
+                                    },
+                                },
+                                stacked: true,
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: { display: false },
+                                border: { display: false },
+                                stacked: true,
+                            }
+                        }
+                    }
+                });
+
+                container.appendChild(canvas);
             }
-            canvas.className = chart
-            canvas.width = chartWidth;
-            canvas.height = 100;
-            let ctx = canvas.getContext('2d');
+
+        });
+
+        // let chartWidth = collContainer.offsetWidth / 3; // 10px Abstand
+        // const colors = getColors();
+
+        // ['first-chart', 'second-chart', 'third-chart'].forEach((chart) => {
+
+        //     if (chart === 'first-chart') {
+                
+        //         // Daten für erstes Chart vorbereiten
+        //         let key = 'level1';
+        //         let values = Object.values(item[key + "_distr"]);
+        //         let labels = Object.values(meta[key]);
+                
+        //         // Container erstellen oder leeren
+        //         let container = collContainer.querySelector('#' + chart + '-' + item.id);
+        //         if (!container) {
+        //             container = document.createElement('col');
+        //             container.className = 'first-chart';
+        //             container.id = `${chart}-${item.id}`;
+        //             container.style.width = chartWidth + 'px';
+        //             container.style.backgroundColor = 'transparent';
+        //         } else {
+        //             container.innerHTML = '';
+        //         }
+                
+        //         // Container mit Daten füllen
+        //         values.forEach((val, index) => {
+        //             let tip = document.createElement('div');
+        //             tip.className = 'rounded-pill m-1 p-1';
+        //             tip.textContent = `${labels[index]}`;
+        //             tip.style.backgroundColor = val === 1 ? colors[key][index + 1][1] || '#FFFFFF' : 'transparent';
+        //             tip.style.color = val === 1 ? '#000000' : '#FFFFFF';
+        //             tip.style.fontSize = '12px';
+        //             container.appendChild(tip);
+        //         });
+
+        //         // Container zum Collapsable hinzufügen
+        //         collContainer.appendChild(container);
+                
+        //     };
+
+        //     if (chart === 'second-chart') {
+
+        //         // Container erstellen oder leeren
+        //         let container = collContainer.querySelector('#' + chart + '-' + item.id);
+        //         if (!container) {
+        //             container = document.createElement('col');
+        //             container.className = 'second-chart';
+        //             container.id = `${chart}-${item.id}`;
+        //             container.style.width = chartWidth + 'px';
+        //             container.style.height = collContainer.offsetHeight + 'px';
+        //         } else {
+        //             container.innerHTML = '';
+        //         }
+
+        //         // Container zum Collapsable hinzufügen
+        //         collContainer.appendChild(container);
+
+        //     }
+
+            // let canvas = collContainer.querySelector('canvas' + '.' + chart);
+            // if (!canvas) {
+            //     canvas = document.createElement('canvas');
+            // }
+            // canvas.className = chart
+            // canvas.width = chartWidth;
+            // canvas.height = 100;
+            // let ctx = canvas.getContext('2d');
 
             // // Chart befüllen
             // if (chart === 'first-chart') {
@@ -84,33 +274,11 @@ class CDList extends HTMLElement {
             //         }]
             //     }
                 
-            //     new Chart(ctx, {
-            //         type: 'bar',
-            //         data: data,
-            //         options: {
-            //             indexAxis: 'y',
-            //             plugins: {
-            //                 legend: { display: false },       // Legende aus
-            //                 tooltip: { enabled: false },       // Tooltip aus
-            //             },
-            //             scales: {
-            //                 x: {
-            //                     grid: { display: false },       // X-Grid weg
-            //                     ticks: { display: false },      // X-Skalen-Labels weg
-            //                     border: { display: false }
-            //                 },
-            //                 y: {
-            //                     grid: { display: false },       // Y-Grid weg
-            //                     ticks: { display: true, color: '#ffffff' },      // Y-Skalen-Labels weg
-            //                     border: { display: false }
-            //                 }
-            //             }
-            //         }
-            //     });
+            //     
             // } 
 
-            collContainer.appendChild(canvas);
-        });
+            // collContainer.appendChild(canvas);
+        // });
 
         collapse.className = "collapse collapsable-description border border-light mx-2 px-3 pb-2 text-center";
         collapse.setAttribute('aria-expanded', 'false');
@@ -372,8 +540,21 @@ class CDListItem extends HTMLElement {
             const collapsable = document.createElement('div');
             collapsable.className = "collapse.show collapsable-description border border-light mx-2 px-3 pb-2 text-center";
             collapsable.id = `desc-${this.itemId}`;
+            // collapsable.innerHTML = `
+            //     <div class='col flex-fill d-flex flex-row' id="description-content-${this.itemId}">
+            //     </div>
+            // `;
             collapsable.innerHTML = `
-                <div class='col flex-fill d-flex flex-row' id="description-content-${this.itemId}">
+                <div class='row' id="description-content-${this.itemId}">
+                    <div class='col-4' id="col1-${this.itemId}"></div>
+                    <div class='col-4' id="col2-${this.itemId}">
+                        <div class='row' id="col2-row1-${this.itemId}"></div>
+                        <div class='row' id="col2-row2-${this.itemId}"></div>
+                    </div>
+                    <div class='col-4' id="col3-${this.itemId}">
+                        <div class='row' id="col3-row1-${this.itemId}"></div>
+                        <div class='row' id="col3-row2-${this.itemId}"></div>
+                    </div>
                 </div>
             `;
 
@@ -418,4 +599,3 @@ class CDPaginator extends HTMLElement {
     }
 }
 customElements.define("cd-paginator", CDPaginator);
-
