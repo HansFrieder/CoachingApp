@@ -187,6 +187,51 @@ class CDList extends HTMLElement {
                 });
 
                 container.appendChild(canvas);
+            } else if (key === 'level2') {
+                let values = Object.values(item[key + "_distr"]);
+                let labels = Object.values(meta[key]);
+                let container = collapse.querySelector('#col3-row1-' + item.id);
+                container.innerHTML = '';
+
+                // Container mit Daten füllen
+                let canvas = document.createElement('canvas');
+                canvas.width = container.offsetWidth / 3 * 2;
+                canvas.height = 100;
+                let ctx = canvas.getContext('2d');
+                let data = {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: labels.map((_, index) => colors[key][index + 1][1] || '#FFFFFF'),
+                    }]   
+                };
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        layout: {
+                            autoPadding: true,
+                        },
+                        plugins: {
+                            legend: {
+                                display: false,
+                                position: 'bottom',
+                            },
+                            tooltip: {
+                                enabled: false
+                            }
+                        },
+                        hover: {
+                            // mode: null
+                        },
+                        cutout: '50%',
+                        center: true,
+                        radius: '80%',
+                        borderColor: 'transparent',
+                    },
+                })
+                container.appendChild(canvas);
             }
 
         });
